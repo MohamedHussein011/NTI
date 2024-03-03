@@ -9,6 +9,10 @@
 #include "EXTI_private.h"
 #include "EXTI_config.h"
 
+/*array of 3 pointers to functions for all interrupt sources*/
+static pvFunction_t EXIT_CallBackFunc[3] = {NULL};
+
+
 void EXTI_voidINT0 (void)
 {
 #if EXTERNAL_INT0_SOURCE == LOW_LEVEL
@@ -143,4 +147,56 @@ u8 EXTI_u8DisableInterrupt (u8 copy_u8InterruptSource)
 		Local_u8ErrorState = EXTI_E_PARAM_INVALID_INT_ID;
 
 	return Local_u8ErrorState;
+}
+
+u8 EXTI_u8CallBack (u8 copy_u8InterruptSource, pvFunction_t copy_pvFunc)
+{
+	u8 Local_u8ErrorState = OK;
+
+	if(copy_u8InterruptSource >= EXT_INT0 && copy_u8InterruptSource <= EXT_INT2)
+	{
+		if(copy_pvFunc != NULL)
+		{
+			EXIT_CallBackFunc[copy_u8InterruptSource] = copy_pvFunc;
+		}
+		else
+			Local_u8ErrorState = EXTI_E_PARAM_POINTER;
+	}
+	else
+		Local_u8ErrorState = EXTI_E_PARAM_INVALID_INT_ID;
+
+	return Local_u8ErrorState;
+}
+
+/******************************************************************************
+ * !comment  :  ISR Function EXI.  							 			      *
+ ******************************************************************************/
+//INT0
+void __vector_1 (void) __attribute__((signal));
+void __vector_1 (void)
+{
+	if(EXIT_CallBackFunc[EXT_INT0] != NULL)
+	{
+		EXIT_CallBackFunc[EXT_INT0]();
+	}
+}
+
+//INT1
+void __vector_2 (void) __attribute__((signal));
+void __vector_2 (void)
+{
+	if(EXIT_CallBackFunc[EXT_INT1] != NULL)
+	{
+		EXIT_CallBackFunc[EXT_INT1]();
+	}
+}
+
+//INT2
+void __vector_3 (void) __attribute__((signal));
+void __vector_3 (void)
+{
+	if(EXIT_CallBackFunc[EXT_INT2] != NULL)
+	{
+		EXIT_CallBackFunc[EXT_INT2]();
+	}
 }
