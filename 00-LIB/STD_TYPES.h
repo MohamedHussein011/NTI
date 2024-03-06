@@ -19,7 +19,7 @@ typedef signed long  int     s32;           /* -2147483648 .. +2147483647     */
 typedef float f32;
 typedef double f64;
 
-typedef void (*pvFunction_t) (void);           /*Pointer to function*/
+typedef void (*pvFunction_t) (void);           /*Pointer to function takes nothing & return nothing*/
 
 #define OK               0
 #define NOK              1
