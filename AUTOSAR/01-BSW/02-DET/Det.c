@@ -1,12 +1,11 @@
 /***************************************************************************************/
 /*************             Author: Mohamed Hussein              ************************/
-/*************             File: GI_config.h	                ************************/
+/*************             File: Det.c  	                    ************************/
 /***************************************************************************************/
 
-#ifndef GI_CONFIG_H
-#define GI_CONFIG_H
+#include "Det.h"
 
-//enable or disable global interrupt
-#define GI_EN		GI_DISABLE
-
-#endif
+Std_ReturnType Det_ReportError (uint16 ModuleId, uint8 InstanceId, uint8 ApiId, uint8 ErrorId)
+{
+	
+}

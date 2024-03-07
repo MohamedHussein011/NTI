@@ -16,9 +16,9 @@ void DIO_voidInit(void)
 	/**********************				Direction					*************************/
 	//DDRA
 #if ((PORTA_PIN0_DIR == 0 || PORTA_PIN0_DIR == 1) && (PORTA_PIN1_DIR == 0 || PORTA_PIN1_DIR == 1) && \
-		(PORTA_PIN2_DIR == 0 || PORTA_PIN2_DIR == 1) && (PORTA_PIN3_DIR == 0 || PORTA_PIN3_DIR == 1) && \
-		(PORTA_PIN4_DIR == 0 || PORTA_PIN4_DIR == 1) && (PORTA_PIN5_DIR == 0 || PORTA_PIN5_DIR == 1) && \
-		(PORTA_PIN6_DIR == 0 || PORTA_PIN6_DIR == 1) && (PORTA_PIN7_DIR == 0 || PORTA_PIN7_DIR == 1))
+	 (PORTA_PIN2_DIR == 0 || PORTA_PIN2_DIR == 1) && (PORTA_PIN3_DIR == 0 || PORTA_PIN3_DIR == 1) && \
+	 (PORTA_PIN4_DIR == 0 || PORTA_PIN4_DIR == 1) && (PORTA_PIN5_DIR == 0 || PORTA_PIN5_DIR == 1) && \
+	 (PORTA_PIN6_DIR == 0 || PORTA_PIN6_DIR == 1) && (PORTA_PIN7_DIR == 0 || PORTA_PIN7_DIR == 1))
 
 	DDRA = PORTA_DIR;
 #else
