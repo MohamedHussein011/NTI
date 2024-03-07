@@ -33,6 +33,7 @@
 Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 {
 	Dio_LevelType ReturnValue;
+	volatile REGS_st* DioPort;
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(ChannelId > DIO_CHANNELS)
 	{
@@ -48,7 +49,8 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 	if(ChannelId < 8)
 	{
 		//PORTA
-		if((DIO_PORTA->PIN) >> ChannelId && 0x01)
+		DioPort = DIO_PORTA;
+		if((DioPort->PIN) >> ChannelId && 0x01)
 		{
 			ReturnValue = STD_HIGH;
 		}
@@ -58,7 +60,8 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 	else if(ChannelId < 16)
 	{
 		//PORTB
-		if((DIO_PORTB->PIN) >> (ChannelId - 8) && 0x01)
+		DioPort = DIO_PORTB;
+		if((DioPort->PIN) >> (ChannelId - 8) && 0x01)
 		{
 			ReturnValue = STD_HIGH;
 		}
@@ -68,7 +71,8 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 	else if(ChannelId < 24)
 	{
 		//PORTC
-		if((DIO_PORTC->PIN) >> (ChannelId - 16) && 0x01)
+		DioPort = DIO_PORTC;
+		if((DioPort->PIN) >> (ChannelId - 16) && 0x01)
 		{
 			ReturnValue = STD_HIGH;
 		}
@@ -78,7 +82,8 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 	else if(ChannelId < DIO_CHANNELS)
 	{
 		//PORTD
-		if((DIO_PORTD->PIN) >> (ChannelId - 24) && 0x01)
+		DioPort = DIO_PORTD;
+		if((DioPort->PIN) >> (ChannelId - 24) && 0x01)
 		{
 			ReturnValue = STD_HIGH;
 		}
@@ -94,6 +99,8 @@ Dio_LevelType Dio_ReadChannel ( Dio_ChannelType ChannelId )
 
 void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 {
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(ChannelId > DIO_CHANNELS)
 	{
@@ -109,49 +116,53 @@ void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 	if(ChannelId < 8)
 	{
 		//PORTA
+		DioPort = DIO_PORTA;
 		if(Level == STD_HIGH)
 		{
-			DIO_PORTA->PORT |= (1 << ChannelId);
+			DioPort->PORT |= (1 << ChannelId);
 		}
 		else if(Level == STD_LOW)
 		{
-			DIO_PORTA->PORT &= ~(1 << ChannelId);
+			DioPort->PORT &= ~(1 << ChannelId);
 		}
 	}
 	else if(ChannelId < 16)
 	{
 		//PORTB
+		DioPort = DIO_PORTB;
 		if(Level == STD_HIGH)
 		{
-			DIO_PORTB->PORT |= (1 << (ChannelId - 8));
+			DioPort->PORT |= (1 << (ChannelId - 8));
 		}
 		else if(Level == STD_LOW)
 		{
-			DIO_PORTB->PORT &= ~(1 << (ChannelId - 8));
+			DioPort->PORT &= ~(1 << (ChannelId - 8));
 		}
 	}
 	else if(ChannelId < 24)
 	{
 		//PORTC
+		DioPort = DIO_PORTC;
 		if(Level == STD_HIGH)
 		{
-			DIO_PORTC->PORT |= (1 << (ChannelId - 16));
+			DioPort->PORT |= (1 << (ChannelId - 16));
 		}
 		else if(Level == STD_LOW)
 		{
-			DIO_PORTC->PORT &= ~(1 << (ChannelId - 16));
+			DioPort->PORT &= ~(1 << (ChannelId - 16));
 		}
 	}
 	else if(ChannelId < DIO_CHANNELS)
 	{
 		//PORTD
+		DioPort = DIO_PORTD;
 		if(Level == STD_HIGH)
 		{
-			DIO_PORTD->PORT |= (1 << (ChannelId - 24));
+			DioPort->PORT |= (1 << (ChannelId - 24));
 		}
 		else if(Level == STD_LOW)
 		{
-			DIO_PORTD->PORT &= ~(1 << (ChannelId - 24));
+			DioPort->PORT &= ~(1 << (ChannelId - 24));
 		}
 	}
 }
@@ -160,6 +171,8 @@ void Dio_WriteChannel ( Dio_ChannelType ChannelId, Dio_LevelType Level )
 Dio_PortLevelType Dio_ReadPort ( Dio_PortType PortId )
 {
 	Dio_LevelType ReturnValue;
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(PortId > DIO_PORTS)
 	{
@@ -175,22 +188,26 @@ Dio_PortLevelType Dio_ReadPort ( Dio_PortType PortId )
 	if(PortId == 0)
 	{
 		//PORTA
-		ReturnValue = DIO_PORTA->PORT;
+		DioPort = DIO_PORTA;
+		ReturnValue = DioPort->PORT;
 	}
 	else if(PortId == 1)
 	{
 		//PORTB
-		ReturnValue = DIO_PORTB->PORT;
+		DioPort = DIO_PORTB;
+		ReturnValue = DioPort->PORT;
 	}
 	else if(PortId == 2)
 	{
 		//PORTC
-		ReturnValue = DIO_PORTC->PORT;
+		DioPort = DIO_PORTC;
+		ReturnValue = DioPort->PORT;
 	}
 	else if(PortId == 3)
 	{
 		//PORTD
-		ReturnValue = DIO_PORTD->PORT;
+		DioPort = DIO_PORTD;
+		ReturnValue = DioPort->PORT;
 	}
 
 
@@ -200,6 +217,8 @@ Dio_PortLevelType Dio_ReadPort ( Dio_PortType PortId )
 
 void Dio_WritePort ( Dio_PortType PortId, Dio_PortLevelType Level )
 {
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(PortId > DIO_PORTS)
 	{
@@ -215,22 +234,26 @@ void Dio_WritePort ( Dio_PortType PortId, Dio_PortLevelType Level )
 	if(PortId == 0)
 	{
 		//PORTA
-		DIO_PORTA->PORT = Level;
+		DioPort = DIO_PORTA;
+		DioPort->PORT = Level;
 	}
 	else if(PortId == 1)
 	{
 		//PORTB
-		DIO_PORTB->PORT = Level;
+		DioPort = DIO_PORTB;
+		DioPort->PORT = Level;
 	}
 	else if(PortId == 2)
 	{
 		//PORTC
-		DIO_PORTC->PORT = Level;
+		DioPort = DIO_PORTC;
+		DioPort->PORT = Level;
 	}
 	else if(PortId == 3)
 	{
 		//PORTD
-		DIO_PORTD->PORT = Level;
+		DioPort = DIO_PORTD;
+		DioPort->PORT = Level;
 	}
 }
 
@@ -238,6 +261,7 @@ void Dio_WritePort ( Dio_PortType PortId, Dio_PortLevelType Level )
 Dio_PortLevelType Dio_ReadChannelGroup ( const Dio_ChannelGroupType* ChannelGroupIdPtr )
 {
 	Dio_PortLevelType ReturnValue;
+	volatile REGS_st* DioPort;
 
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(ChannelGroupIdPtr == NULL_PTR)
@@ -264,22 +288,26 @@ Dio_PortLevelType Dio_ReadChannelGroup ( const Dio_ChannelGroupType* ChannelGrou
 	if(ChannelGroupIdPtr->port == 0)
 	{
 		//PORTA
-		ReturnValue = ((DIO_PORTA->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
+		DioPort = DIO_PORTA;
+		ReturnValue = ((DioPort->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
 	}
 	else if(ChannelGroupIdPtr->port == 1)
 	{
 		//PORTB
-		ReturnValue = ((DIO_PORTB->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
+		DioPort = DIO_PORTB;
+		ReturnValue = ((DioPort->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
 	}
 	else if(ChannelGroupIdPtr->port == 2)
 	{
 		//PORTC
-		ReturnValue = ((DIO_PORTC->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
+		DioPort = DIO_PORTC;
+		ReturnValue = ((DioPort->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
 	}
 	else if(ChannelGroupIdPtr->port == 3)
 	{
 		//PORTD
-		ReturnValue = ((DIO_PORTD->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
+		DioPort = DIO_PORTD;
+		ReturnValue = ((DioPort->PIN) >> ChannelGroupIdPtr->offset ) & (ChannelGroupIdPtr ->mask >> ChannelGroupIdPtr->offset);
 	}
 
 	return ReturnValue;
@@ -288,6 +316,8 @@ Dio_PortLevelType Dio_ReadChannelGroup ( const Dio_ChannelGroupType* ChannelGrou
 
 void Dio_WriteChannelGroup ( const Dio_ChannelGroupType* ChannelGroupIdPtr, Dio_PortLevelType Level)
 {
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(ChannelGroupIdPtr == NULL_PTR)
 	{
@@ -313,22 +343,26 @@ void Dio_WriteChannelGroup ( const Dio_ChannelGroupType* ChannelGroupIdPtr, Dio_
 	if(ChannelGroupIdPtr->port == 0)
 	{
 		//PORTA
-		DIO_PORTA->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
+		DioPort = DIO_PORTA;
+		DioPort->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
 	}
 	else if(ChannelGroupIdPtr->port == 1)
 	{
 		//PORTB
-		DIO_PORTB->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
+		DioPort = DIO_PORTB;
+		DioPort->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
 	}
 	else if(ChannelGroupIdPtr->port == 2)
 	{
 		//PORTC
-		DIO_PORTC->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
+		DioPort = DIO_PORTC;
+		DioPort->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
 	}
 	else if(ChannelGroupIdPtr->port == 3)
 	{
 		//PORTD
-		DIO_PORTD->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
+		DioPort = DIO_PORTD;
+		DioPort->PORT |= ((Level << ChannelGroupIdPtr->offset) & ChannelGroupIdPtr ->mask);
 	}
 
 }
@@ -361,6 +395,8 @@ void Dio_GetVersionInfo ( Std_VersionInfoType* VersionInfo )
 Dio_LevelType Dio_FlipChannel ( Dio_ChannelType ChannelId )
 {
 	Dio_LevelType ReturnValue;
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(ChannelId > DIO_CHANNELS)
 	{
@@ -376,22 +412,26 @@ Dio_LevelType Dio_FlipChannel ( Dio_ChannelType ChannelId )
 	if(ChannelId < 8)
 	{
 		//PORTA
-		DIO_PORTA->PORT ^= (1 << ChannelId);
+		DioPort = DIO_PORTA;
+		DioPort->PORT ^= (1 << ChannelId);
 	}
 	else if(ChannelId < 16)
 	{
 		//PORTB
-		DIO_PORTB->PORT ^= (1 << (ChannelId - 8));
+		DioPort = DIO_PORTB;
+		DioPort->PORT ^= (1 << (ChannelId - 8));
 	}
 	else if(ChannelId < 24)
 	{
 		//PORTC
-		DIO_PORTC->PORT ^= (1 << (ChannelId - 16));
+		DioPort = DIO_PORTC;
+		DioPort->PORT ^= (1 << (ChannelId - 16));
 	}
 	else if(ChannelId < DIO_CHANNELS)
 	{
 		//PORTD
-		DIO_PORTD->PORT ^= (1 << (ChannelId - 24));
+		DioPort = DIO_PORTD;
+		DioPort->PORT ^= (1 << (ChannelId - 24));
 	}
 
 	ReturnValue = Dio_ReadChannel(ChannelId);
@@ -405,6 +445,8 @@ Dio_LevelType Dio_FlipChannel ( Dio_ChannelType ChannelId )
 void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_PortLevelType Mask )
 {
 	uint8 i=0;
+	volatile REGS_st* DioPort;
+
 #if DIO_DEV_ERROR_DETECT == STD_ON
 	if(PortId > DIO_PORTS)
 	{
@@ -420,6 +462,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 	if(PortId == 0)
 	{
 		//PORTA
+		DioPort = DIO_PORTA;
 		while(i < 8 && (((Mask >> i) & 0x01) == 0))
 		{
 			i++;
@@ -427,7 +470,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 
 		if(i < 8)
 		{
-			DIO_PORTA->PORT |= ((Level << i) & Mask);
+			DioPort->PORT |= ((Level << i) & Mask);
 		}
 		else
 		{
@@ -438,6 +481,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 	else if(PortId == 1)
 	{
 		//PORTB
+		DioPort = DIO_PORTB;
 		while(i < 8 && (((Mask >> i) & 0x01) == 0))
 		{
 			i++;
@@ -445,7 +489,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 
 		if(i < 8)
 		{
-			DIO_PORTB->PORT |= ((Level << i) & Mask);
+			DioPort->PORT |= ((Level << i) & Mask);
 		}
 		else
 		{
@@ -455,6 +499,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 	else if(PortId == 2)
 	{
 		//PORTC
+		DioPort = DIO_PORTC;
 		while(i < 8 && (((Mask >> i) & 0x01) == 0))
 		{
 			i++;
@@ -462,7 +507,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 
 		if(i < 8)
 		{
-			DIO_PORTC->PORT |= ((Level << i) & Mask);
+			DioPort->PORT |= ((Level << i) & Mask);
 		}
 		else
 		{
@@ -472,6 +517,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 	else if(PortId == 3)
 	{
 		//PORTD
+		DioPort = DIO_PORTD;
 		while(i < 8 && (((Mask >> i) & 0x01) == 0))
 		{
 			i++;
@@ -479,7 +525,7 @@ void Dio_MaskedWritePort ( Dio_PortType PortId, Dio_PortLevelType Level, Dio_Por
 
 		if(i < 8)
 		{
-			DIO_PORTD->PORT |= ((Level << i) & Mask);
+			DioPort->PORT |= ((Level << i) & Mask);
 		}
 		else
 		{

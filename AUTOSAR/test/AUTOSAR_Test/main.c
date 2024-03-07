@@ -26,7 +26,7 @@ void main(void)
 	Dio_WriteChannel(DIO_CHANNEL6, STD_LOW);        //A6    LOW
 	Dio_WriteChannel(DIO_CHANNEL7, STD_LOW);        //A7    LOW
 
-	Dio_WritePort(DIO_PORT1,0xff);				//PORTA 	HIGH
+	Dio_WritePort(DIO_PORT1,0xff);				//PORTB 	HIGH
 	Dio_WritePort(DIO_PORT2,0x00);				//PORTC		LOW
 
 	Dio_ChannelGroupType dio_group = {0x1E, 1, DIO_PORT3};		//group (D1 -> D4), D1 & D2 high, D3 & D4 low

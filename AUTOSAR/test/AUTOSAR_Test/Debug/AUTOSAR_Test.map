@@ -142,7 +142,7 @@ LOAD e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgc
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x18cc
+.text           0x00000000     0x19ae
  *(.vectors)
  .vectors       0x00000000       0x54 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
                 0x00000000                __vectors
@@ -252,45 +252,45 @@ LOAD e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgc
                 0x00000b36       0x2a ./Det.o
                 0x00000b36                Det_ReportError
  .text.Dio_ReadChannel
-                0x00000b60       0xf8 ./Dio.o
+                0x00000b60      0x11e ./Dio.o
                 0x00000b60                Dio_ReadChannel
  .text.Dio_WriteChannel
-                0x00000c58      0x204 ./Dio.o
-                0x00000c58                Dio_WriteChannel
+                0x00000c7e      0x20a ./Dio.o
+                0x00000c7e                Dio_WriteChannel
  .text.Dio_ReadPort
-                0x00000e5c       0x6a ./Dio.o
-                0x00000e5c                Dio_ReadPort
+                0x00000e88       0x90 ./Dio.o
+                0x00000e88                Dio_ReadPort
  .text.Dio_WritePort
-                0x00000ec6       0x6a ./Dio.o
-                0x00000ec6                Dio_WritePort
+                0x00000f18       0x90 ./Dio.o
+                0x00000f18                Dio_WritePort
  .text.Dio_ReadChannelGroup
-                0x00000f30      0x1a2 ./Dio.o
-                0x00000f30                Dio_ReadChannelGroup
+                0x00000fa8      0x1c8 ./Dio.o
+                0x00000fa8                Dio_ReadChannelGroup
  .text.Dio_WriteChannelGroup
-                0x000010d2      0x16a ./Dio.o
-                0x000010d2                Dio_WriteChannelGroup
+                0x00001170      0x180 ./Dio.o
+                0x00001170                Dio_WriteChannelGroup
  .text.Dio_GetVersionInfo
-                0x0000123c       0x5a ./Dio.o
-                0x0000123c                Dio_GetVersionInfo
+                0x000012f0       0x5a ./Dio.o
+                0x000012f0                Dio_GetVersionInfo
  .text.Dio_FlipChannel
-                0x00001296      0x108 ./Dio.o
-                0x00001296                Dio_FlipChannel
+                0x0000134a      0x120 ./Dio.o
+                0x0000134a                Dio_FlipChannel
  .text.Dio_MaskedWritePort
-                0x0000139e      0x202 ./Dio.o
-                0x0000139e                Dio_MaskedWritePort
- .text.main     0x000015a0      0x2ba ./main.o
-                0x000015a0                main
- .text.libgcc   0x0000185a        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
- .text.libgcc   0x0000185a        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
- .text.libgcc   0x0000185a       0x38 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_prologue.o)
-                0x0000185a                __prologue_saves__
- .text.libgcc   0x00001892       0x36 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_epilogue.o)
-                0x00001892                __epilogue_restores__
-                0x000018c8                . = ALIGN (0x2)
+                0x0000146a      0x218 ./Dio.o
+                0x0000146a                Dio_MaskedWritePort
+ .text.main     0x00001682      0x2ba ./main.o
+                0x00001682                main
+ .text.libgcc   0x0000193c        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x0000193c        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x0000193c       0x38 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_prologue.o)
+                0x0000193c                __prologue_saves__
+ .text.libgcc   0x00001974       0x36 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_epilogue.o)
+                0x00001974                __epilogue_restores__
+                0x000019aa                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000018c8        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
-                0x000018c8                exit
-                0x000018c8                _exit
+ .fini9         0x000019aa        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x000019aa                exit
+                0x000019aa                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -309,11 +309,11 @@ LOAD e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgc
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000018c8        0x4 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .fini0         0x000019aa        0x4 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000018cc                _etext = .
+                0x000019ae                _etext = .
 
-.data           0x00800060        0xc load address 0x000018cc
+.data           0x00800060        0xc load address 0x000019ae
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800060        0x0 e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm32.o
@@ -372,8 +372,8 @@ LOAD e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgc
  *(.bss*)
  *(COMMON)
                 0x0080006c                PROVIDE (__bss_end, .)
-                0x000018cc                __data_load_start = LOADADDR (.data)
-                0x000018d8                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000019ae                __data_load_start = LOADADDR (.data)
+                0x000019ba                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0080006c        0x0
                 0x0080006c                PROVIDE (__noinit_start, .)
@@ -398,17 +398,17 @@ LOAD e:/imt/new folder/imt_sdk_win_64/winavr/bin/../lib/gcc/avr/4.3.3/avr5\libgc
 .signature
  *(.signature*)
 
-.stab           0x00000000     0x11f4
+.stab           0x00000000     0x141c
  *(.stab)
  .stab          0x00000000      0x240 ./Det.o
- .stab          0x00000240      0xa68 ./Dio.o
-                                0xb4c (size before relaxing)
- .stab          0x00000ca8      0x54c ./main.o
+ .stab          0x00000240      0xc90 ./Dio.o
+                                0xd74 (size before relaxing)
+ .stab          0x00000ed0      0x54c ./main.o
                                 0x6cc (size before relaxing)
 
-.stabstr        0x00000000      0xf0d
+.stabstr        0x00000000      0xf32
  *(.stabstr)
- .stabstr       0x00000000      0xf0d ./Det.o
+ .stabstr       0x00000000      0xf32 ./Det.o
 
 .stab.excl
  *(.stab.excl)
