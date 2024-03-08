@@ -78,7 +78,7 @@ void EXTI_voidINT1 (void);
 */
 void EXTI_voidINT2 (void);
 
-/* @brief		shall set external interrupt with specific sense control during runtime
+/*@brief		shall set external interrupt with specific sense control during runtime
 * @paramin		copy_u8InterruptSource / Interrupt Source - copy_u8SenseControl / Interrupt Sense Control
 * @paramout		none
 * @retval		Error State of Wrong paramin

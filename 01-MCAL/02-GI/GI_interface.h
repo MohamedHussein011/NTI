@@ -14,7 +14,6 @@
 /*Enable Global interrupt - Set I*/
 #define sei()     __asm__ __volatile__("sei" ::: "memory")
 
-
 /*Disable Global interrupt - Clear I*/
 #define cli()     __asm__ __volatile__("cli" ::: "memory")
 
