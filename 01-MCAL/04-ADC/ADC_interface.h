@@ -15,7 +15,9 @@
 //ADC timeout
 #define ADC_E_TIMEOUT							0x0C
 //ADC is busy with conversion
-#define ADC_E_BUSY							0x0D
+#define ADC_E_BUSY								0x0D
+//Invalid ADC Trigger Source ID requested
+#define ADC_E_PARAM_INVALID_TRIGGER_ID			0x0E
 
 /*********************************		MACROs	******************************/
 /* Voltage Reference Selection */
@@ -35,7 +37,7 @@
 #define ADC_10BIT					0
 #define ADC_8BIT					1
 
-/* ADC channels */
+/* ADC Prescaler */
 typedef enum
 {
 	ADC_DIV_BY_2 = 1,
@@ -46,6 +48,19 @@ typedef enum
 	ADC_DIV_BY_64,
 	ADC_DIV_BY_128
 }ADC_PRESCALER_en;
+
+/* ADC Trigger Source */
+typedef enum
+{
+	ADC_FREE_RUNNING = 0,			//Free Running mode
+	ADC_ANALOG_COM,					//Analog Comparator
+	ADC_EXTI0,						//External Interrupt Request 0
+	ADC_TIMER0_COM,					//Timer/Counter0 Compare Match
+	ADC_TIMER0_OV,					//Timer/Counter0 Overflow
+	ADC_TIMER1_COMB,				//Timer/Counter1 Compare Match B
+	ADC_TIMER1_OV,					//Timer/Counter1 Overflow
+	ADC_TIMER1_CE					//Timer/Counter1 Capture Event
+}ADC_TRIGGER_en;
 
 /* ADC channels */
 typedef enum
@@ -59,14 +74,6 @@ typedef enum
 	ADC_CHANNEL6,
 	ADC_CHANNEL7,
 }ADC_CHANNELS_en;
-
-/* ADC Group Synchronous*/
-typedef struct
-{
-	u8 NumberOfChannels;
-	u8* AdcChannels;
-	u16* AdcResults;
-}ADC_GROUP_st;
 
 
 /********************************				Function Prototypes				********************************/
@@ -94,20 +101,34 @@ u8 ADC_u8SingleConversionSynch(u8 copy_u8AdcChannel, u16* copy_pu16AdcData);
 u8 ADC_u8SingleConversionAsynch(u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc);
 
 /* @brief		shall start ADC group conversion synchronous
-* @paramin		copy_stAdcGroup / ADC channels to be converted
-* @paramout		copy_stAdcGroup / ADC result to be returned
+* @paramin		copy_u8NumOfConversions / number of ADC conversions needed -
+* 				copy_pu8AdcChannels / array holding channels to be converted
+* @paramout		copy_pu16AdcResults / ADC result to be returned
 * @retval		Error of wrong parameters
 */
-u8 ADC_u8GroupConversionSynch(ADC_GROUP_st* copy_stAdcGroup);
+u8 ADC_u8GroupConversionSynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannels, u16* copy_pu16AdcResults);
 
 /* @brief		shall start ADC group conversion Asynchronous
-* @paramin		copy_stAdcGroup / ADC channels to be converted -
+* @paramin		copy_u8NumOfConversions / number of ADC conversions needed -
+* 				copy_pu8AdcChannels / array holding channels to be converted -
 * 				copy_pvNotificationFunc / pointer to function that takes nothing and returns nothing
 * 				& be executed when the conversion is complete
-* @paramout		copy_stAdcGroup / ADC result to be returned
+* @paramout		copy_pu16AdcResults / ADC result to be returned
 * @retval		Error of wrong parameters
 */
-u8 ADC_u8GroupConversionAsynch(ADC_GROUP_st* copy_stAdcGroup, pvFunction_t copy_pvNotificationFunc);
+u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannels, u16* copy_pu16AdcResults, u8* Copy_pu8AdcErrorStatus, pvFunction_t copy_pvNotificationFunc);
+
+/* @brief		shall start ADC single conversion by a trigger source
+* @paramin		copy_u8AdcTriggerSource / ADC trigger source that starts the conversion -
+* 				copy_u8AdcChannel / ADC channel to be converted -
+* 				copy_pvNotificationFunc / pointer to function that takes nothing and returns nothing
+* 				& be executed when the conversion is complete
+* @paramout		copy_u16AdcData / ADC result to be returned
+* @retval		Error of wrong parameters
+*/
+u8 ADC_u8TriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc);
+
+
 
 
 #endif 

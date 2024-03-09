@@ -12,12 +12,6 @@
 /* ADC Left Adjust */
 #define ADC_ADJUST					ADC_RIGHT
 
-/* ADC Auto Trigger Enable */
-#define ADC_AUTO_TRIGGER			ADC_DISABLE
-
-/* ADC Interrupt Enable */
-#define ADC_INTERRUPT				ADC_ENABLE
-
 /* ADC Prescaler */
 #define ADC_PRESCALER				ADC_DIV_BY_64
 
