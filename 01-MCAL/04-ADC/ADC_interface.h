@@ -97,6 +97,7 @@ u8 ADC_u8SingleConversionSynch(u8 copy_u8AdcChannel, u16* copy_pu16AdcData);
 * 				& be executed when the conversion is complete
 * @paramout		copy_u16AdcData / ADC result to be returned
 * @retval		Error of wrong parameters
+* @note			must enable interrupt
 */
 u8 ADC_u8SingleConversionAsynch(u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc);
 
@@ -115,20 +116,30 @@ u8 ADC_u8GroupConversionSynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannel
 * 				& be executed when the conversion is complete
 * @paramout		copy_pu16AdcResults / ADC result to be returned
 * @retval		Error of wrong parameters
+* @note			must enable interrupt
 */
 u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannels, u16* copy_pu16AdcResults, u8* Copy_pu8AdcErrorStatus, pvFunction_t copy_pvNotificationFunc);
 
-/* @brief		shall start ADC single conversion by a trigger source
+/* @brief		shall start ADC conversion by a trigger source
 * @paramin		copy_u8AdcTriggerSource / ADC trigger source that starts the conversion -
 * 				copy_u8AdcChannel / ADC channel to be converted -
 * 				copy_pvNotificationFunc / pointer to function that takes nothing and returns nothing
 * 				& be executed when the conversion is complete
 * @paramout		copy_u16AdcData / ADC result to be returned
 * @retval		Error of wrong parameters
+* @note			must enable interrupt
+* @note			it starts ADC conversion once there's a positive flag from the source & continuously doing so
+* 				until you change the source or you disable it
+* 				to disable it, use function ADC_voidDisableAutoTrigger
 */
-u8 ADC_u8TriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc);
+u8 ADC_u8AutoTriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc);
 
-
+/* @brief		shall disable ADC conversion by a trigger source
+* @paramin		none
+* @paramout		none
+* @retval		none
+*/
+void ADC_voidDisableAutoTrigger(void);
 
 
 #endif 

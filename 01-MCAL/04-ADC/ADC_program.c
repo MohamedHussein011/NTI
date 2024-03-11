@@ -313,7 +313,7 @@ u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChanne
 }
 
 
-u8 ADC_u8TriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc)
+u8 ADC_u8AutoTriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc)
 {
 	u8 Local_u8ErrorStatus = OK;
 
@@ -345,6 +345,12 @@ u8 ADC_u8TriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16
 					/* Enable ADC Auto Trigger */
 					SET_BIT(ADCSRA,ADATE);
 
+					if(copy_u8AdcTriggerSource == ADC_FREE_RUNNING)
+					{
+						/* ADC Start Conversion */
+						SET_BIT(ADCSRA, ADSC);
+					}
+
 					/*Enable ADC Interrupt*/
 					SET_BIT(ADCSRA,ADIE);
 
@@ -366,7 +372,24 @@ u8 ADC_u8TriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16
 	return Local_u8ErrorStatus;
 }
 
-
+void ADC_voidDisableAutoTrigger(void)
+{
+	if(ADC_u8AutoTrigger == WORKING)
+	{
+		/* Auto Trigger is now not working */
+		ADC_u8AutoTrigger = NOT_WORKING;
+		if(GET_BIT(ADCSRA, ADSC) == 1)
+		{
+			CLR_BIT(ADCSRA, ADSC);
+		}
+		/* disable Auto Trigger */
+		CLR_BIT(ADCSRA,ADATE);
+		/*Disable ADC Interrupt*/
+		CLR_BIT(ADCSRA,ADIE);
+		/*ADC is now IDLE*/
+		ADC_u8State = IDLE;
+	}
+}
 
 /******************************************************************************
  * !comment  :  ISR Function ADC.  							 			      *
@@ -399,22 +422,21 @@ void __vector_16 (void)
 #error "Wrong ADC result selection"
 #endif
 
-		/*Disable ADC Interrupt*/
-		CLR_BIT(ADCSRA,ADIE);
-
-		if(ADC_u8AutoTrigger == WORKING)
+		if(ADC_u8AutoTrigger == NOT_WORKING)
 		{
-			/* Disable ADC Auto Trigger */
-			CLR_BIT(ADCSRA,ADATE);
-
-			ADC_u8AutoTrigger = NOT_WORKING;
+			/*Disable ADC Interrupt*/
+			CLR_BIT(ADCSRA,ADIE);
+			/*ADC is now IDLE*/
+			ADC_u8State = IDLE;
+		}
+		else
+		{
+			/* Nothing */
 		}
 
 		/*Invoke the callback notification function*/
 		ADC_pvNotificationFunction();
 
-		/*ADC is now IDLE*/
-		ADC_u8State = IDLE;
 	}
 	else if(ADC_u8GroupConversionFlag == WORKING)
 	{

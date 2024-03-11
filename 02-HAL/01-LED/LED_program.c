@@ -8,10 +8,11 @@
 #include "DIO_interface.h"
 
 #include "LED_interface.h"
-#include "LED_config.h"
 
 
-u8 LED_u8ON (u8 copy_u8Port, u8 copy_u8Pin)
+/********************************				Function Definitions				********************************/
+
+u8 LED_u8On (u8 copy_u8Port, u8 copy_u8Pin)
 {
 	u8 Local_u8ErrorState = OK;
 
@@ -30,7 +31,7 @@ u8 LED_u8ON (u8 copy_u8Port, u8 copy_u8Pin)
 	return Local_u8ErrorState;
 }
 
-u8 LED_u8OFF (u8 copy_u8Port, u8 copy_u8Pin)
+u8 LED_u8Off (u8 copy_u8Port, u8 copy_u8Pin)
 {
 	u8 Local_u8ErrorState = OK;
 
@@ -49,7 +50,7 @@ u8 LED_u8OFF (u8 copy_u8Port, u8 copy_u8Pin)
 	return Local_u8ErrorState;
 }
 
-u8 LED_u8TOG (u8 copy_u8Port, u8 copy_u8Pin)
+u8 LED_u8Tog (u8 copy_u8Port, u8 copy_u8Pin)
 {
 	u8 Local_u8ErrorState = OK;
 

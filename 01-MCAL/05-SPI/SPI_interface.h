@@ -63,10 +63,10 @@ void SPI_voidSlaveInit(void);
 
 /* @brief		shall transmit & receive data synchronous
 * @paramin		copy_u8TransData / 1 byte data to be transmitted
-* @paramout		copy_u8ReceiveData / pointer to hold the received 1 byte data
+* @paramout		copy_pu8ReceiveData / pointer to hold the received 1 byte data
 * @retval		Error status of wrong paramin
 */
-u8 SPI_u8TransReceiveDataSynch (u8 copy_u8TransData, u8* copy_u8ReceiveData);
+u8 SPI_u8TransReceiveDataSynch (u8 copy_u8TransData, u8* copy_pu8ReceiveData);
 
 /* @brief		shall transmit & receive data Asynchronous
 * @paramin		copy_u8TransData / 1 byte data to be transmitted -
@@ -101,5 +101,6 @@ void SPI_voidDisableInterrupt(void);
 * @retval		Error State of Wrong paramin
 */
 u8 SPI_u8SetCallback (void (*copy_pvFunc)(u8 copy_u8Data));
+
 
 #endif 

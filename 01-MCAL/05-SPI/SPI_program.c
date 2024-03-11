@@ -111,11 +111,11 @@ void SPI_voidSlaveInit(void)
 	SET_BIT(SPI->SPCR, SPE);
 }
 
-u8 SPI_u8TransReceiveDataSynch (u8 copy_u8TransData, u8* copy_u8ReceiveData)
+u8 SPI_u8TransReceiveDataSynch (u8 copy_u8TransData, u8* copy_pu8ReceiveData)
 {
 	u8 Local_u8ErrorState = OK;
 
-	if(copy_u8ReceiveData != NULL)
+	if(copy_pu8ReceiveData != NULL)
 	{
 		SPI->SPDR = copy_u8TransData;
 
@@ -125,13 +125,14 @@ u8 SPI_u8TransReceiveDataSynch (u8 copy_u8TransData, u8* copy_u8ReceiveData)
 		/* Clear interrput flag */
 		SET_BIT(SPI->SPSR,SPIF);
 
-		*copy_u8ReceiveData = SPI->SPDR;
+		*copy_pu8ReceiveData = SPI->SPDR;
 	}
 	else
 		Local_u8ErrorState = SPI_E_PARAM_POINTER;
 
 	return Local_u8ErrorState;
 }
+
 
 u8 SPI_u8TransReceiveDataAsynch (u8 copy_u8TransData, void (*copy_pvNotificationFunc)(u8 copy_u8Data))
 {
@@ -143,7 +144,7 @@ u8 SPI_u8TransReceiveDataAsynch (u8 copy_u8TransData, void (*copy_pvNotification
 		{
 			SPI_STCCallBack = copy_pvNotificationFunc;
 			SPI->SPDR = copy_u8TransData;
-			//Enable or Disable interrupt
+			//Enable interrupt
 			SET_BIT(SPI->SPCR, SPIE);
 			SPI_FLAG = BUSY;
 		}
@@ -188,7 +189,7 @@ void __vector_12 (void)
 	{
 		SPI_STCCallBack((u8)SPI->SPDR);
 		//Disable interrupt
-		SET_BIT(SPI->SPCR, SPIE);
+		CLR_BIT(SPI->SPCR, SPIE);
 
 		//idle now
 		SPI_FLAG = IDLE;
