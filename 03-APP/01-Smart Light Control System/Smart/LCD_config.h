@@ -23,7 +23,7 @@
 #define LCD_Display        Display_ON
 
 /* Cursor On/Off*/
-#define LCD_Cursor       Cursor_ON
+#define LCD_Cursor       Cursor_OFF
 
 /* Blinking On/Off*/
 #define LCD_Blinking       Blinking_OFF

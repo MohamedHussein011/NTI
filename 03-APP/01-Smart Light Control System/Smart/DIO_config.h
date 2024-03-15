@@ -20,8 +20,8 @@
 #define PORTA_PIN2_DIR                1
 #define PORTA_PIN3_DIR                0
 #define PORTA_PIN4_DIR                0
-#define PORTA_PIN5_DIR                0
-#define PORTA_PIN6_DIR                0
+#define PORTA_PIN5_DIR                1
+#define PORTA_PIN6_DIR                1
 #define PORTA_PIN7_DIR                1
 
 /******************************************************************************
@@ -35,7 +35,7 @@
 #define PORTB_PIN3_DIR                0             //OC0
 #define PORTB_PIN4_DIR                1             //SS  output for master & input for slave
 #define PORTB_PIN5_DIR                1             //MOSI  output for master & input for slave
-#define PORTB_PIN6_DIR                0             //MISO  output for slave & input for master
+#define PORTB_PIN6_DIR                1             //MISO  output for slave & input for master
 #define PORTB_PIN7_DIR                1             //SCK   output for master & input for slave
 
 /******************************************************************************
@@ -47,17 +47,17 @@
 #define PORTC_PIN1_DIR                1               //SDA
 #define PORTC_PIN2_DIR                1
 #define PORTC_PIN3_DIR                1
-#define PORTC_PIN4_DIR                1
-#define PORTC_PIN5_DIR                1
-#define PORTC_PIN6_DIR                1
-#define PORTC_PIN7_DIR                1
+#define PORTC_PIN4_DIR                0
+#define PORTC_PIN5_DIR                0
+#define PORTC_PIN6_DIR                0
+#define PORTC_PIN7_DIR                0
 
 /******************************************************************************
  * !comment : Select Direction for PORTD option:  		    	              *
  *           1: 0                  -----> INPUT (default)                     *
  *           2: 1                  -----> OUTPUT                              *
  ******************************************************************************/
-#define PORTD_PIN0_DIR                0            //Rx USART
+#define PORTD_PIN0_DIR                1            //Rx USART
 #define PORTD_PIN1_DIR                0            //Tx USART
 #define PORTD_PIN2_DIR                0            //INT0
 #define PORTD_PIN3_DIR                0            //INT1
@@ -76,8 +76,8 @@
 #define PORTA_PIN2_INITIAL_VALUE                0
 #define PORTA_PIN3_INITIAL_VALUE                0
 #define PORTA_PIN4_INITIAL_VALUE                1
-#define PORTA_PIN5_INITIAL_VALUE                1
-#define PORTA_PIN6_INITIAL_VALUE                1
+#define PORTA_PIN5_INITIAL_VALUE                0
+#define PORTA_PIN6_INITIAL_VALUE                0
 #define PORTA_PIN7_INITIAL_VALUE                0
 
 /******************************************************************************
@@ -89,7 +89,7 @@
 #define PORTB_PIN1_INITIAL_VALUE                1
 #define PORTB_PIN2_INITIAL_VALUE                1       //INT2
 #define PORTB_PIN3_INITIAL_VALUE                1       //OC0
-#define PORTB_PIN4_INITIAL_VALUE                1       //SS  output for master & input for slave
+#define PORTB_PIN4_INITIAL_VALUE                0       //SS  output for master & input for slave
 #define PORTB_PIN5_INITIAL_VALUE                0       //MOSI  output for master & input for slave
 #define PORTB_PIN6_INITIAL_VALUE                0       //MISO  output for slave & input for master
 #define PORTB_PIN7_INITIAL_VALUE                0       //SCK   output for master & input for slave
@@ -99,13 +99,13 @@
  *           1: 0                  -----> LOW or Floating (input) (default)            *
  *           2: 1                  -----> HIGH or PULLED-UP (input)                    *
  ******************************************************************************/
-#define PORTC_PIN0_INITIAL_VALUE                0           //SCL
-#define PORTC_PIN1_INITIAL_VALUE                0           //SDA
-#define PORTC_PIN2_INITIAL_VALUE                0
-#define PORTC_PIN3_INITIAL_VALUE                0
-#define PORTC_PIN4_INITIAL_VALUE                0
-#define PORTC_PIN5_INITIAL_VALUE                0
-#define PORTC_PIN6_INITIAL_VALUE                0
+#define PORTC_PIN0_INITIAL_VALUE                1           //SCL
+#define PORTC_PIN1_INITIAL_VALUE                1           //SDA
+#define PORTC_PIN2_INITIAL_VALUE                1
+#define PORTC_PIN3_INITIAL_VALUE                1
+#define PORTC_PIN4_INITIAL_VALUE                1
+#define PORTC_PIN5_INITIAL_VALUE                1
+#define PORTC_PIN6_INITIAL_VALUE                1
 #define PORTC_PIN7_INITIAL_VALUE                1
 
 /******************************************************************************
@@ -113,7 +113,7 @@
  *           1: 0                  -----> LOW or Floating (input) (default)            *
  *           2: 1                  -----> HIGH or PULLED-UP (input)                    *
  ******************************************************************************/
-#define PORTD_PIN0_INITIAL_VALUE                1             //Rx USART
+#define PORTD_PIN0_INITIAL_VALUE                0             //Rx USART
 #define PORTD_PIN1_INITIAL_VALUE                1             //Tx USART
 #define PORTD_PIN2_INITIAL_VALUE                1             //INT0
 #define PORTD_PIN3_INITIAL_VALUE                1             //INT1
