@@ -16,7 +16,7 @@
 #define TIMER0_MODE				TIMER_FAST_PWM
 
 /* Compare Match Output Mode */
-#define TIMER0_COMP_MODE					TIMER_COMP_SET_OCx
+#define TIMER0_COMP_MODE					TIMER_COMP_CLR_OCx
 
 /* Clock Select / Prescaler */
 #define TIMER0_CLOCK_SELECT				TIMER_CLOCK_64
@@ -40,7 +40,7 @@
 
 /* Compare Match Output Mode */
 #define TIMER1_COMP_CHANEL_A_MODE					TIMER_COMP_CLR_OCx	//Compare Output Mode for Channel A
-#define TIMER1_COMP_CHANEL_B_MODE					TIMER_COMP_CLR_OCx	//Compare Output Mode for Channel B
+#define TIMER1_COMP_CHANEL_B_MODE					TIMER_COMP_SET_OCx	//Compare Output Mode for Channel B
 
 /* Clock Select / Prescaler */
 #define TIMER1_CLOCK_SELECT				TIMER_CLOCK_64

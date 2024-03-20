@@ -9,8 +9,6 @@
 #include "WDT_private.h"
 
 
-
-
 /********************************				Function Definitions				********************************/
 
 u8 WDT_u8Enable(u8 copy_u8TimerReset)
@@ -20,7 +18,7 @@ u8 WDT_u8Enable(u8 copy_u8TimerReset)
 	if(copy_u8TimerReset >= WDT_TIME_16MS && copy_u8TimerReset <= WDT_TIME_2100MS)
 	{
 		/* Set time to reset */
-		WDTCR |= copy_u8TimerReset;
+		WDTCR = ((WDTCR & 0xF8) | copy_u8TimerReset);
 
 		/* Enable Watchdog*/
 		SET_BIT(WDTCR, WDE);

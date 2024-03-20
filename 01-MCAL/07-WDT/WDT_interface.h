@@ -32,7 +32,7 @@
 
 /********************************				 TIMER0  						********************************/
 /* @brief		shall enable Watchdog with time to reset
-* @paramin		copy_u8TimerReset
+* @paramin		copy_u8TimerReset / timeout to reset the uc
 * @paramout		none
 * @retval		error of wrong paramin
 */

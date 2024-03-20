@@ -9,18 +9,55 @@
 #include "TIMER_private.h"
 #include "TIMER_config.h"
 
-/* Global Timer2 Delay Counter for the Delay function*/
-static u16 Timer2_u16DelayCounter = 0;
-/* Global Timer2 Counter for the Delay function*/
-static u16 Timer2_u16Counter = 0;
-/* Global Timer2 Flag for the Delay function indicating it's already working*/
-static u8 Timer2_u8Flag = IDLE;
+/****************************			Global Variables				*************************/
+/* variables indicating max freq. for each prescalers for TIMER0 PWM*/
+#if TIMER0_MODE == TIMER_FAST_PWM
+static u16 Timer0_u16MaxFreq = CPU_FREQ / 256UL;
+static u16 Timer0_u16Pre8Freq = CPU_FREQ / (8 * 256UL);
+static u16 Timer0_u16Pre64Freq = CPU_FREQ / (64 * 256UL);
+static u16 Timer0_u16Pre256Freq = CPU_FREQ / (256 * 256UL);
+static u16 Timer0_u16MinFreq = CPU_FREQ /(1024UL * 256UL);
+#elif TIMER0_MODE == TIMER_PWM
+static u16 Timer0_u16MaxFreq = CPU_FREQ / 510UL;
+static u16 Timer0_u16Pre8Freq = CPU_FREQ / (8 * 510UL);
+static u16 Timer0_u16Pre64Freq = CPU_FREQ / (64 * 510UL);
+static u16 Timer0_u16Pre256Freq = CPU_FREQ / (256 * 510UL);
+static u16 Timer0_u16MinFreq = CPU_FREQ /(1024UL * 510UL);
+#endif
 
-static u16 Timer_u16MaxFreq = CPU_FREQ / 256UL;
-static u16 Timer_u16Pre8Freq = CPU_FREQ / (8 * 256UL);
-static u16 Timer_u16Pre64Freq = CPU_FREQ / (64 * 256UL);
-static u16 Timer_u16Pre256Freq = CPU_FREQ / (256 * 256UL);
-static u16 Timer_u16MinFreq = CPU_FREQ/(1024UL * 256);
+/* variables indicating max freq. for each prescalers for TIMER1 PWM*/
+#if (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT)
+static u16 Timer1_u16MaxFreq = CPU_FREQ / 256UL;
+static u16 Timer1_u16Pre8Freq = CPU_FREQ / (8 * 256UL);
+static u16 Timer1_u16Pre64Freq = CPU_FREQ / (64 * 256UL);
+static u16 Timer1_u16Pre256Freq = CPU_FREQ / (256 * 256UL);
+static u16 Timer1_u16MinFreq = CPU_FREQ /(1024UL * 256UL);
+#elif (TIMER1_MODE == TIMER1_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_9BIT)
+static u16 Timer1_u16MaxFreq = CPU_FREQ / 512UL;
+static u16 Timer1_u16Pre8Freq = CPU_FREQ / (8 * 512UL);
+static u16 Timer1_u16Pre64Freq = CPU_FREQ / (64 * 512UL);
+static u16 Timer1_u16Pre256Freq = CPU_FREQ / (256 * 512UL);
+static u16 Timer1_u16MinFreq = CPU_FREQ /(1024UL * 512UL);
+#elif (TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+static u16 Timer1_u16MaxFreq = CPU_FREQ / 1024UL;
+static u16 Timer1_u16Pre8Freq = CPU_FREQ / (8 * 1024UL);
+static u16 Timer1_u16Pre64Freq = CPU_FREQ / (64 * 1024UL);
+static u16 Timer1_u16Pre256Freq = CPU_FREQ / (256 * 1024UL);
+static u16 Timer1_u16MinFreq = CPU_FREQ /(1024UL * 1024UL);
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+static u16 Timer1_u16MaxFreq = CPU_FREQ / 1024UL;
+static u16 Timer1_u16Pre8Freq = CPU_FREQ / (8 * 1024UL);
+static u16 Timer1_u16Pre64Freq = CPU_FREQ / (64 * 1024UL);
+static u16 Timer1_u16Pre256Freq = CPU_FREQ / (256 * 1024UL);
+static u16 Timer1_u16MinFreq = CPU_FREQ /(1024UL * 1024UL);
+#endif
+
+/* Timer2 Delay Counter for the Delay function*/
+static u16 Timer2_u16DelayCounter = 0;
+/* Timer2 Counter for the Delay function*/
+static u16 Timer2_u16Counter = 0;
+/* Timer2 Flag for the Delay function indicating it's already working*/
+static u8 Timer2_u8Flag = IDLE;
 
 /*array of 2 pointers to functions for all interrupt sources for TIMER0*/
 static pvFunction_t Timer_CallBack[8] = {NULL};
@@ -126,15 +163,14 @@ void TIMER0_voidForceOutputComp(void)
 	SET_BIT(TCCR0, FOC0);
 }
 
-
-
 u8 TIMER0_u8GeneratePWM(u32 copy_u32Freq, u16 copy_u16Duty)
 {
+#if (TIMER0_MODE == TIMER_FAST_PWM || TIMER0_MODE == TIMER_PWM)
 	u8 Local_u8ErrorStatus = OK;
 
 	if(copy_u16Duty >= 0 && copy_u16Duty <= 1000)
 	{
-		if(copy_u32Freq >= Timer_u16MinFreq && copy_u32Freq <= Timer_u16MaxFreq)
+		if(copy_u32Freq >= 0 && copy_u32Freq <= Timer0_u16MaxFreq)
 		{
 			/* stop the timer first */
 			TCCR0 &= 0xF8;
@@ -155,28 +191,30 @@ u8 TIMER0_u8GeneratePWM(u32 copy_u32Freq, u16 copy_u16Duty)
 #if (TIMER0_COMP_MODE == TIMER_COMP_CLR_OCx)		//non-inverting
 			OCR0 = (255UL * (copy_u16Duty + 1)) / 1000UL;
 #elif (TIMER0_COMP_MODE == TIMER_COMP_SET_OCx)		//inverting
-			OCR0 = (256*1000UL - (copy_u16Duty + 1)*256UL) / 1000UL;
+			OCR0 = (256*1000UL - (copy_u16Duty + 1)*255UL) / 1000UL;
+#else
+			Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
 #endif
 
 			/* Clock Select / Prescaler */
 			TCCR0 &= 0xF8;
-			if(copy_u32Freq < (Timer_u16MinFreq + 1))
+			if(copy_u32Freq < (Timer0_u16MinFreq + 1))
 			{
 				TCCR0 |= TIMER_CLOCK_1024;
 			}
-			else if(copy_u32Freq < (Timer_u16Pre256Freq + 1))
+			else if(copy_u32Freq < (Timer0_u16Pre256Freq + 1))
 			{
 				TCCR0 |= TIMER_CLOCK_256;
 			}
-			else if(copy_u32Freq < (Timer_u16Pre64Freq + 1))
+			else if(copy_u32Freq < (Timer0_u16Pre64Freq + 1))
 			{
 				TCCR0 |= TIMER_CLOCK_64;
 			}
-			else if(copy_u32Freq < (Timer_u16Pre8Freq + 1))
+			else if(copy_u32Freq < (Timer0_u16Pre8Freq + 1))
 			{
 				TCCR0 |= TIMER_CLOCK_8;
 			}
-			else if(copy_u32Freq < Timer_u16MaxFreq)
+			else if(copy_u32Freq < Timer0_u16MaxFreq)
 			{
 				TCCR0 |= TIMER_NO_PRESCALER;
 			}
@@ -188,6 +226,10 @@ u8 TIMER0_u8GeneratePWM(u32 copy_u32Freq, u16 copy_u16Duty)
 	}
 	else
 		Local_u8ErrorStatus = TIMER_E_PARAM_INVALID_DUTY_ID;
+
+#else
+	Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
 
 	return Local_u8ErrorStatus;
 }
@@ -285,33 +327,145 @@ void TIMER1_voidSetCompMatchChannelBValue(u16 copy_u16CompValue)
 	OCR1B = copy_u16CompValue;
 }
 
-void TIMER1_voidGeneratePWM(u16 copy_u16Freq, f32 copy_f32Duty)
+u8 TIMER1_u8GeneratePWM(u8 copy_u8TimerChannel, u32 copy_u32Freq, u16 copy_u16Duty)
 {
-	/* stop the timer first */
-	TCCR1B &= 0xF8;
-	TCCR1B |= TIMER_NO_CLOCK;
+	u8 Local_u8ErrorStatus = OK;
 
-	/* Waveform Generation Mode --> Fast PWM, ICR1 TOP*/
-	/*			WGM10						WGM11				 */
-	TCCR1A |= (((TIMER1_FAST_PWM_ICR1&0x01)) | ((TIMER1_FAST_PWM_ICR1>>1 & 0x01) << 1));
+	if(copy_u8TimerChannel == TIMER1_CHANNEL_A || copy_u8TimerChannel == TIMER1_CHANNEL_B)
+	{
+		if(copy_u16Duty >= 0 && copy_u16Duty <= 1000)
+		{
+			/* stop the timer first */
+			TCCR1B &= 0xF8;
+			TCCR1B |= TIMER_NO_CLOCK;
 
-	/*			WGM12						WGM13				 */
-	TCCR1B |= (((TIMER1_FAST_PWM_ICR1>>2 &0x01) << 3) | ((TIMER1_FAST_PWM_ICR1>>3 & 0x01) << 4));
+			/* Waveform Generation Mode --> Fast PWM, ICR1 TOP*/
+			/*			WGM10						WGM11				 */
+			TCCR1A |= (((TIMER1_MODE&0x01)) | ((TIMER1_MODE>>1 & 0x01) << 1));
 
-	/* Compare Match Output Mode Channel B --> Clear OC1A/OC1B on compare match,
-											   Set OC1A/OC1B at TOP	*/
-	/*			COM1B0										COM1B1				 */
-	TCCR1A |= (((TIMER_COMP_CLR_OCx&0x01) << 4) | ((TIMER_COMP_CLR_OCx>>1 & 0x01) << 5));
+			/*			WGM12						WGM13				 */
+			TCCR1B |= (((TIMER1_MODE>>2 &0x01) << 3) | ((TIMER1_MODE>>3 & 0x01) << 4));
 
-	/* load the freq required in ICR1 */
-	ICR1 = (copy_u16Freq * 1000UL) / 4;
+			/* Compare Match Output Mode Channel A or B --> Clear OC1A/OC1B on compare match,
+																   Set OC1A/OC1B at TOP	*/
+			if(copy_u8TimerChannel == TIMER1_CHANNEL_A)
+			{
+				/*			COM1A0									COM1A1				 */
+				TCCR1A |= (((TIMER1_COMP_CHANEL_A_MODE&0x01) << 6) | ((TIMER1_COMP_CHANEL_A_MODE>>1 & 0x01) << 7));
+			}
+			else if(copy_u8TimerChannel == TIMER1_CHANNEL_B)
+			{
+				/*			COM1B0										COM1B1				 */
+				TCCR1A |= (((TIMER1_COMP_CHANEL_B_MODE&0x01) << 4) | ((TIMER1_COMP_CHANEL_B_MODE>>1 & 0x01) << 5));
+			}
 
-	/* load the Duty required value in OCR1B */
-	OCR1B = (copy_f32Duty * ICR1) / 1000UL;
+			/* load the freq required in ICR1 or OCR1A or not based on TIMER1 mode*/
+#if (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+			ICR1 = (u16)((CPU_FREQ / (64UL * copy_u32Freq)) - 1);
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_OCR1A || TIMER1_MODE == TIMER1_FAST_PWM_OCR1A)
+			OCR1A = (u16)((CPU_FREQ / (64UL * copy_u32Freq)) - 1);
+#endif
 
-	/* start the timer with prescaler / */
-	TCCR1B &= 0xF8;
-	TCCR1B |= TIMER_CLOCK_64;
+			/* load the Duty required value in OCR1x */
+			if(copy_u8TimerChannel == TIMER1_CHANNEL_A)
+			{
+#if (TIMER1_COMP_CHANEL_A_MODE == TIMER_COMP_CLR_OCx)		//non-inverting
+#if (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT)
+				OCR1A = (255UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_9BIT)
+				OCR1A = (511UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+				OCR1A = (1023UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+				OCR1A = (ICR1 * (copy_u16Duty + 1)) / 1000UL;
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+
+#elif (TIMER1_COMP_CHANEL_A_MODE == TIMER_COMP_SET_OCx)		//inverting
+#if (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT)
+				OCR1A = (256*1000UL - (copy_u16Duty + 1)*255UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_9BIT)
+				OCR1A = (512*1000UL - (copy_u16Duty + 1)*511UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+				OCR1A = (1024*1000UL - (copy_u16Duty + 1)*1023UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+				OCR1A = (ICR1*1000UL - (u32)(copy_u16Duty*ICR1)) / 1000UL;
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+			}
+			else if(copy_u8TimerChannel == TIMER1_CHANNEL_B)
+			{
+#if (TIMER1_COMP_CHANEL_B_MODE == TIMER_COMP_CLR_OCx)		//non-inverting
+#if (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT)
+				OCR1B = (255UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_9BIT)
+				OCR1B = (511UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+				OCR1B = (1023UL * (copy_u16Duty + 1)) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+				OCR1B = (ICR1 * (copy_u16Duty + 1)) / 1000UL;
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+
+#elif (TIMER1_COMP_CHANEL_B_MODE == TIMER_COMP_SET_OCx)		//inverting
+#if (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT)
+				OCR1B = (256*1000UL - (copy_u16Duty + 1)*255UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_9BIT)
+				OCR1B = (512*1000UL - (copy_u16Duty + 1)*511UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+				OCR1B = (1024*1000UL - (copy_u16Duty + 1)*1023UL) / 1000UL;
+#elif (TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_ICR1)
+				OCR1B = (ICR1*1000UL - (u32)(copy_u16Duty*ICR1)) / 1000UL;
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+
+#else
+				Local_u8ErrorStatus = TIMER_E_INVALID_PWM_CONFIG;
+#endif
+
+			}
+
+			/* start the timer with prescaler / 64 */
+			TCCR1B &= 0xF8;
+			TCCR1B |= TIMER_CLOCK_64;
+			/*if(copy_u32Freq < (Timer1_u16MinFreq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_1024;
+			}
+			else if(copy_u32Freq < (Timer1_u16Pre256Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_256;
+			}
+			else if(copy_u32Freq < (Timer1_u16Pre64Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_64;
+			}
+			else if(copy_u32Freq < (Timer1_u16Pre8Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_8;
+			}
+			else if(copy_u32Freq < Timer1_u16MaxFreq)
+			{
+				TCCR1B |= TIMER_NO_PRESCALER;
+			}*/
+
+		}
+		else
+			Local_u8ErrorStatus = TIMER_E_PARAM_INVALID_DUTY_ID;
+
+	}
+	else
+		Local_u8ErrorStatus = TIMER_E_PARAM_INVALID_CHANNEL_ID;
+
+	return Local_u8ErrorStatus;
 
 }
 
@@ -403,15 +557,12 @@ u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
 			/* Busy */
 			Timer2_u8Flag = BUSY;
 
-			/* store the delay*/
-			Timer2_u16Counter = copy_u16Delayms / 4;
-
-			/* store the function to be called*/
-			Timer_CallBack[TIMER2_COMP] = copy_pvFunc;
-
 			/* stop the timer */
 			TCCR2 &= 0xF8;
 			TCCR2 |= TIMER2_NO_CLOCK;
+
+			/* store the function to be called*/
+			Timer_CallBack[TIMER2_COMP] = copy_pvFunc;
 
 			/* Waveform Generation Mode --> CTC mode */
 			/*			WGM20						WGM21				 */
@@ -424,15 +575,18 @@ u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
 			/* Preload value = 0, to start from the beginning */
 			TCNT2 = 0;
 
-			/* compare value = 250, every 4 ms interrupt happens */
+			/* compare value = 250, every 1 ms interrupt happens */
 			OCR2 = 250;
+
+			/* store the delay*/
+			Timer2_u16Counter = copy_u16Delayms;
 
 			/* Timer/Counter2 Output Compare Match Interrupt Enable */
 			TIMSK |= (TIMER_ENABLE<<7);
 
-			/* start the timer by prescaler /256 ... tick time = 16 us*/
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
 			TCCR2 &= 0xF8;
-			TCCR2 |= TIMER2_CLOCK_256;
+			TCCR2 |= TIMER2_CLOCK_64;
 		}
 		else
 			Local_u8ErrorStatus = TIMER_E_BUSY;

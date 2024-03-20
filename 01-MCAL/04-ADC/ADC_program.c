@@ -262,12 +262,12 @@ u8 ADC_u8GroupConversionSynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannel
 	return Local_u8ErrorStatus;
 }
 
-u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChannels, u16* copy_pu16AdcResults, u8* Copy_pu8AdcErrorStatus, pvFunction_t copy_pvNotificationFunc)
+u8 ADC_u8GroupConversionAsynch (Adc_Group_Asynch_st* copy_stAdcGroupAsynch)
 {
 	u8 Local_u8ErrorStatus = OK;
 
-	if((copy_pvNotificationFunc != NULL)
-			&& (copy_pu8AdcChannels != NULL) && (copy_pu16AdcResults != NULL))
+	if((copy_stAdcGroupAsynch->NotificationFunc != NULL)
+			&& (copy_stAdcGroupAsynch->AdcChannels != NULL) && (copy_stAdcGroupAsynch->AdcResults != NULL))
 	{
 
 		if(ADC_u8State == IDLE)
@@ -277,21 +277,21 @@ u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChanne
 			/*Group conversion now starts*/
 			ADC_u8GroupConversionFlag = WORKING;
 			/*Initialize the global Number Of Group conversions variable*/
-			ADC_u8NumberOfConversions = copy_u8NumOfConversions;
+			ADC_u8NumberOfConversions = copy_stAdcGroupAsynch->NumOfConversions;
 			/*Initialize the global Group Needed Channels pointer*/
-			ADC_pu8GroupChannels = copy_pu8AdcChannels;
+			ADC_pu8GroupChannels = copy_stAdcGroupAsynch->AdcChannels;
 			/*Initialize the global result pointer*/
-			ADC_pu16ConversionResult = copy_pu16AdcResults;
+			ADC_pu16ConversionResult = copy_stAdcGroupAsynch->AdcResults;
 			/*Initialize the global notification function pointer*/
-			ADC_pvNotificationFunction = copy_pvNotificationFunc;
+			ADC_pvNotificationFunction = copy_stAdcGroupAsynch->NotificationFunc;
 			/*Initialize the global error status pointer*/
-			ADC_pu8ErrorStatus = Copy_pu8AdcErrorStatus;
+			ADC_pu8ErrorStatus = copy_stAdcGroupAsynch->AdcErrorStatus;
 
-			if(copy_pu8AdcChannels[ADC_u8GroupCounter] <= ADC_CHANNEL7)
+			if(copy_stAdcGroupAsynch->AdcChannels[ADC_u8GroupCounter] <= ADC_CHANNEL7)
 			{
 				//select channel
 				ADMUX &= 0xE0;		/* clear MUX bits in the ADMUX register */
-				ADMUX |= copy_pu8AdcChannels[ADC_u8GroupCounter];	/* Set required channel into the MUX bits in ADMUX register */
+				ADMUX |= copy_stAdcGroupAsynch->AdcChannels[ADC_u8GroupCounter];	/* Set required channel into the MUX bits in ADMUX register */
 
 				/* ADC Start Conversion */
 				SET_BIT(ADCSRA, ADSC);
@@ -313,15 +313,15 @@ u8 ADC_u8GroupConversionAsynch(u8 copy_u8NumOfConversions, u8* copy_pu8AdcChanne
 }
 
 
-u8 ADC_u8AutoTriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel, u16* copy_pu16AdcData, pvFunction_t copy_pvNotificationFunc)
+u8 ADC_u8AutoTriggerConversion (Adc_Trigger_st* copy_stAdcTrigger)
 {
 	u8 Local_u8ErrorStatus = OK;
 
-	if(copy_u8AdcChannel <= ADC_CHANNEL7)
+	if(copy_stAdcTrigger->AdcChannel <= ADC_CHANNEL7)
 	{
-		if(copy_u8AdcTriggerSource <= ADC_TIMER1_CE)
+		if(copy_stAdcTrigger->AdcTriggerSource <= ADC_TIMER1_CE)
 		{
-			if(copy_pu16AdcData != NULL && copy_pvNotificationFunc != NULL)
+			if(copy_stAdcTrigger->AdcData != NULL && copy_stAdcTrigger->NotificationFunc != NULL)
 			{
 				if(ADC_u8State == IDLE)
 				{
@@ -330,22 +330,22 @@ u8 ADC_u8AutoTriggerConversion(u8 copy_u8AdcTriggerSource, u8 copy_u8AdcChannel,
 					/* ADC auto trigger is running now */
 					ADC_u8AutoTrigger = WORKING;
 					/*Initialize the global result pointer*/
-					ADC_pu16ConversionResult = copy_pu16AdcData;
+					ADC_pu16ConversionResult = copy_stAdcTrigger->AdcData;
 					/*Initialize the global notification function pointer*/
-					ADC_pvNotificationFunction = copy_pvNotificationFunc;
+					ADC_pvNotificationFunction = copy_stAdcTrigger->NotificationFunc;
 
 					//select channel
 					ADMUX &= 0xE0;		/* clear MUX bits in the ADMUX register */
-					ADMUX |= copy_u8AdcChannel;	/* Set required channel into the MUX bits in ADMUX register */
+					ADMUX |= copy_stAdcTrigger->AdcChannel;	/* Set required channel into the MUX bits in ADMUX register */
 
 					/* Initialize Trigger Source */
 					SFIOR &= 0x1F;		//mask first
-					SFIOR |= (copy_u8AdcTriggerSource << 5);
+					SFIOR |= (copy_stAdcTrigger->AdcTriggerSource << 5);
 
 					/* Enable ADC Auto Trigger */
 					SET_BIT(ADCSRA,ADATE);
 
-					if(copy_u8AdcTriggerSource == ADC_FREE_RUNNING)
+					if(copy_stAdcTrigger->AdcTriggerSource == ADC_FREE_RUNNING)
 					{
 						/* ADC Start Conversion */
 						SET_BIT(ADCSRA, ADSC);

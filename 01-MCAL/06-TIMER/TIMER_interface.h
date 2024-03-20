@@ -24,6 +24,10 @@
 #define TIMER_E_PARAM_INVALID_DUTY_ID				0x0E
 //Invalid Timer freq ID requested
 #define TIMER_E_PARAM_INVALID_FREQ_ID				0x0F
+//Invalid Timer channel ID requested
+#define TIMER_E_PARAM_INVALID_CHANNEL_ID			0x10
+//Invalid Timer PWM configuration (timer mode not pwm mode or compare match mode)
+#define TIMER_E_INVALID_PWM_CONFIG					0x11
 
 
 /*********************************		MACROs	******************************/
@@ -83,6 +87,10 @@
 #define TIMER2_CLOCK_256					6
 #define TIMER2_CLOCK_1024					7
 
+/* TIMER1 Channels*/
+#define TIMER1_CHANNEL_A					0
+#define TIMER1_CHANNEL_B					1
+
 /* Enable or Disable for TIMER0 & TIMER1 & TIMER2*/
 #define TIMER_DISABLE					0
 #define TIMER_ENABLE					1
@@ -129,12 +137,13 @@ void TIMER0_voidSetCompMatchValue(u8 copy_u8CompValue);
 */
 void TIMER0_voidForceOutputComp(void);
 
-/* @brief		shall delay in ms using TIMER2
+/* @brief		shall generate PWM using TIMER0
 * @paramin		copy_u32Freq / frequency in Hz (min = CPU_FREQ/(1024UL * 256), max = CPU_FREQ / 256) -
 * 				copy_u16Duty / duty cycle (range: 0 : 100, but first multiply it by 10)
 * @paramout		none
 * @retval		error of wrong paramin
 * @note			note: 1000 = 100% , 500 = 50%, 20 = 2%
+* @note 		due to few prescalers ranges, the output freq. will be nearly to the required
 */
 u8 TIMER0_u8GeneratePWM(u32 copy_u32Freq, u16 copy_u16Duty);
 
@@ -174,8 +183,15 @@ void TIMER1_voidSetCompMatchChannelAValue(u16 copy_u16CompValue);
 */
 void TIMER1_voidSetCompMatchChannelBValue(u16 copy_u16CompValue);
 
-
-void TIMER1_voidGeneratePWM(u16 copy_u16Freq, f32 copy_f32Duty);
+/* @brief		shall generate PWM using TIMER1
+* @paramin		copy_u8TimerChannel / Timer1 Channel (A or B) -
+* 				copy_u32Freq / frequency in Hz (min = CPU_FREQ/(1024UL * (1+TOP)), max = CPU_FREQ / (1+TOP)) -
+* 				copy_u16Duty / duty cycle (range: 0 : 100, but first multiply it by 10)
+* @paramout		none
+* @retval		error of wrong paramin
+* @note			note: 1000 = 100% , 500 = 50%, 20 = 2%
+*/
+u8 TIMER1_u8GeneratePWM(u8 copy_u8TimerChannel, u32 copy_u32Freq, u16 copy_u16Duty);
 
 
 /* @brief		shall stop TIMER1
@@ -220,7 +236,7 @@ void TIMER2_voidForceOutputComp(void);
 * 				after the delay passes
 * @paramout		none
 * @retval		error of wrong paramin
-* @note			least delay = 4 ms
+* @note			least delay = 1 ms
 */
 u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc);
 
