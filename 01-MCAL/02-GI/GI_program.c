@@ -7,18 +7,9 @@
 
 #include "GI_interface.h"
 #include "GI_private.h"
-#include "GI_config.h"
 
-void GI_voidInit(void)
-{
-#if GI_EN == GI_ENABLE
-	SET_BIT(SREG,GIE);
-#elif GI_EN == GI_DISABLE
-	CLR_BIT(SREG,GIE);
-#else
-#error "Wrong GIE selection"
-#endif
-}
+
+/********************************				Function Definitions				********************************/
 
 void GI_voidEnable (void)
 {
@@ -28,4 +19,11 @@ void GI_voidEnable (void)
 void GI_voidDisable (void)
 {
 	CLR_BIT(SREG,GIE);
+}
+
+u8 GI_u8GetFlag (void)
+{
+	u8 Local_u8Flag = GET_BIT(SREG,GIE);
+
+	return Local_u8Flag;
 }

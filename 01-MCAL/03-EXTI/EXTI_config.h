@@ -22,6 +22,6 @@
 //external interrupt sense control
 #define EXTERNAL_INT2_SOURCE						FALLING_EDGE
 //enable or disable external interrupt
-#define EXTERNAL_INT2_EN							EXTI_DISABLE
+#define EXTERNAL_INT2_EN							EXTI_ENABLE
 
 #endif

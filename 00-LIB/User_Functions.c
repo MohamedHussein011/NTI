@@ -95,20 +95,26 @@ u8 StringCompare(const char* pu8Copy_String1, const char* pu8Copy_String2)
 {
 	u8 u8Local_Flag = 0;
 
-	while(*pu8Copy_String1 != '\0' || *pu8Copy_String2 != '\0')
+	if(*pu8Copy_String1 != '\0' && *pu8Copy_String2 != '\0')
 	{
-		if(*pu8Copy_String1 == *pu8Copy_String2)
+		while(*pu8Copy_String1 != '\0' || *pu8Copy_String2 != '\0')
 		{
-			pu8Copy_String1++;
-			pu8Copy_String2++;
-		}
-		else if((*pu8Copy_String1 == '\0' && *pu8Copy_String2 != '\0') || (*pu8Copy_String1 != '\0' && *pu8Copy_String2 == '\0') || (*pu8Copy_String1 != *pu8Copy_String2))
-		{
-			u8Local_Flag=1;
-			break;
-		}
+			if(*pu8Copy_String1 == *pu8Copy_String2)
+			{
+				pu8Copy_String1++;
+				pu8Copy_String2++;
+			}
+			else if((*pu8Copy_String1 == '\0' && *pu8Copy_String2 != '\0') || (*pu8Copy_String1 != '\0' && *pu8Copy_String2 == '\0') || (*pu8Copy_String1 != *pu8Copy_String2))
+			{
+				u8Local_Flag=1;
+				break;
+			}
 
+		}
 	}
+	else
+		u8Local_Flag=1;
+
 	if(u8Local_Flag == 0)
 		return 0;
 	else

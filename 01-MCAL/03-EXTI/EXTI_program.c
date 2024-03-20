@@ -12,6 +12,7 @@
 /*array of 3 pointers to functions for all interrupt sources*/
 static pvFunction_t EXIT_CallBackFunc[3] = {NULL};
 
+/********************************				Function Definitions				********************************/
 
 void EXTI_voidINT0 (void)
 {
@@ -74,7 +75,9 @@ void EXTI_voidINT2 (void)
 
 #if EXTERNAL_INT2_EN == EXTI_ENABLE
 	//clear flag first then enable
-	SET_BIT(GIFR,INTF2);
+	if(GET_BIT(GIFR,INTF2) == 1)
+		SET_BIT(GIFR,INTF2);
+
 	SET_BIT(GICR,INT2);
 #elif EXTERNAL_INT2_EN == EXTI_DISABLE
 	CLR_BIT(GICR,INT2);
@@ -156,7 +159,9 @@ u8 EXTI_u8EnableInterrupt (u8 copy_u8InterruptSource)
 
 		case EXT_INT2:
 			//clear flag first then enable
-			SET_BIT(GIFR,INTF2);
+			if(GET_BIT(GIFR,INTF2) == 1)
+				SET_BIT(GIFR,INTF2);
+
 			SET_BIT(GICR,INT2);
 
 			break;
