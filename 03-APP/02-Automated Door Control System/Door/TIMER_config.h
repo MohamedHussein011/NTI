@@ -36,7 +36,7 @@
 
 /********************************				 TIMER1  						********************************/
 /* Waveform Generation Mode */
-#define TIMER1_MODE						TIMER1_PWM_ICR1
+#define TIMER1_MODE						TIMER1_FAST_PWM_ICR1
 
 /* Compare Match Output Mode */
 #define TIMER1_COMP_CHANEL_A_MODE					TIMER_COMP_CLR_OCx	//Compare Output Mode for Channel A

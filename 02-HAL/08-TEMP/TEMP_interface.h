@@ -17,7 +17,7 @@
 
 /********************************				Function Prototypes				********************************/
 /* @brief		shall Rotate the DC Motor clockwise
-* @paramin		copy_u16AdcResult / ADC conversion result -
+* @paramin		copy_u16AdcResult / ADC conversion result
 * @paramout		copy_pu8Degree / temp degree related to the ADC conversion result
 * @retval		error of wrong paramin
 */

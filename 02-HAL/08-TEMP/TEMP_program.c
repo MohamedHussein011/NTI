@@ -4,7 +4,6 @@
 /***************************************************************************************/
 #include "STD_TYPES.h"
 #include "BIT_MATH.h"
-#include "User_Functions.h"
 
 #include "ADC_interface.h"
 
