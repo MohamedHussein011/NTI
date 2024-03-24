@@ -15,10 +15,10 @@
 
 /********************************				Function Prototypes				********************************/
 /* @brief		shall get the value of the LDR
-* @paramin		copy_u16Analog / input analog converted from digital value from ADC
+* @paramin		copy_u16AdcResult / ADC conversion result
 * @paramout		copy_pu32Value / LDR value
 * @retval		errro of wrong paramin & paramout
 */
-u8 LDR_u8GetValue (u32* copy_pu32Value, u16 copy_u16Analog);
+u8 LDR_u8GetValue (u32* copy_pu32Value, u16 copy_u16AdcResult);
 
 #endif 

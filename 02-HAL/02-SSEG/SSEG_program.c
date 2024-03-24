@@ -3,7 +3,6 @@
 /*************             File: SSEG_program.c		            ************************/
 /***************************************************************************************/
 #include "STD_TYPES.h"
-#include "BIT_MATH.h"
 
 #include "DIO_interface.h"
 
@@ -13,36 +12,7 @@
 /* Numbers to be printed on ordinary SSD */
 static u8 SEV_SEG[10] = { 0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F };
 
-void SSEG_voidInit(void)
-{
-#if SSEG_USED_BITS == SSEG_8BITS
-	//initialize pins direction
-	DIO_u8SetPinDirection(SSEG_PORT_PIN0,SSEG_PIN0,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN1,SSEG_PIN1,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN2,SSEG_PIN2,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN3,SSEG_PIN3,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN4,SSEG_PIN4,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN5,SSEG_PIN5,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(SSEG_PORT_PIN6,SSEG_PIN6,DIO_PIN_OUTPUT);
-
-	//COM
-	DIO_u8SetPinDirection(SSEG_COM_PORT,SSEG_COM_PIN,DIO_PIN_OUTPUT);
-
-#elif SSEG_USED_BITS == SSEG_4BITS_BCD
-	//BCD PINS
-	DIO_u8SetPinDirection(BCD_SSEG_PORT_PINA,BCD_SSEG_PINA,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(BCD_SSEG_PORT_PINB,BCD_SSEG_PINB,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(BCD_SSEG_PORT_PINC,BCD_SSEG_PINC,DIO_PIN_OUTPUT);
-	DIO_u8SetPinDirection(BCD_SSEG_PORT_PIND,BCD_SSEG_PIND,DIO_PIN_OUTPUT);
-
-	//COM PIN
-	DIO_u8SetPinDirection(SSEG_BCD_PORT_COM,SSEG_BCD_PIN_COM,DIO_PIN_OUTPUT);
-
-#else
-#error "Wrong seven segment selection"
-
-#endif
-}
+/********************************				Function Definitions				********************************/
 
 u8 SSEG_u8Init (u8* copy_pu8Ports, u8* copy_pu8Pins, u8 copy_u8SSEG)
 {
@@ -71,15 +41,41 @@ u8 SSEG_u8Init (u8* copy_pu8Ports, u8* copy_pu8Pins, u8 copy_u8SSEG)
 	return Local_u8ErrorState;
 }
 
-u8 SSEG_u8WriteNumber (u8 copy_u8number)
+u8 SSEG_u8WriteNum (u8 copy_u8number)
 {
 	u8 Local_u8ErrorState = OK;
 
+	/* check if copy_u8number is greater than 9 or smaller than 0 or a float number */
 	if(copy_u8number < 0 || copy_u8number > 9 || (copy_u8number != (u8)copy_u8number))
 		Local_u8ErrorState = SSEG_E_PARAM_INVALID_NUMBER;
 	else
 	{
 #if SSEG_USED_BITS == SSEG_8BITS
+#if (SSEG_PORT_PIN0 < DIO_PORTA || SSEG_PORT_PIN0 > DIO_PORTD || \
+		SSEG_PORT_PIN1 < DIO_PORTA || SSEG_PORT_PIN1 > DIO_PORTD || \
+		SSEG_PORT_PIN2 < DIO_PORTA || SSEG_PORT_PIN2 > DIO_PORTD || \
+		SSEG_PORT_PIN3 < DIO_PORTA || SSEG_PORT_PIN3 > DIO_PORTD || \
+		SSEG_PORT_PIN4 < DIO_PORTA || SSEG_PORT_PIN4 > DIO_PORTD || \
+		SSEG_PORT_PIN5 < DIO_PORTA || SSEG_PORT_PIN5 > DIO_PORTD || \
+		SSEG_PORT_PIN6 < DIO_PORTA || SSEG_PORT_PIN6 > DIO_PORTD)
+#error "Wrong seven segment port selection"
+#endif
+
+#if (SSEG_PIN0 < DIO_PIN0 || SSEG_PIN0 > DIO_PIN7 || \
+		SSEG_PIN1 < DIO_PIN0 || SSEG_PIN1 > DIO_PIN7 || \
+		SSEG_PIN2 < DIO_PIN0 || SSEG_PIN2 > DIO_PIN7 || \
+		SSEG_PIN3 < DIO_PIN0 || SSEG_PIN3 > DIO_PIN7 || \
+		SSEG_PIN4 < DIO_PIN0 || SSEG_PIN4 > DIO_PIN7 || \
+		SSEG_PIN5 < DIO_PIN0 || SSEG_PIN5 > DIO_PIN7 || \
+		SSEG_PIN6 < DIO_PIN0 || SSEG_PIN6 > DIO_PIN7)
+#error "Wrong seven segment pin selection"
+#endif
+
+#if (SSEG_COM_PORT < DIO_PORTA || SSEG_COM_PORT > DIO_PORTD || \
+		SSEG_COM_PIN < DIO_PIN0 || SSEG_COM_PIN > DIO_PIN7)
+#error "Wrong seven segment com port & pin selection"
+#endif
+
 #if SSEG_TYPE == ANODE
 		//COM
 		DIO_u8SetPinValue(SSEG_COM_PORT,SSEG_COM_PIN,DIO_PIN_HIGH);
@@ -109,6 +105,24 @@ u8 SSEG_u8WriteNumber (u8 copy_u8number)
 #endif
 
 #elif SSEG_USED_BITS == SSEG_4BITS_BCD
+#if (BCD_SSEG_PORT_PINA < DIO_PORTA || BCD_SSEG_PORT_PINA > DIO_PORTD || \
+	BCD_SSEG_PORT_PINB < DIO_PORTA || BCD_SSEG_PORT_PINB > DIO_PORTD || \
+	BCD_SSEG_PORT_PINC < DIO_PORTA || BCD_SSEG_PORT_PINC > DIO_PORTD || \
+	BCD_SSEG_PORT_PIND < DIO_PORTA || BCD_SSEG_PORT_PIND > DIO_PORTD)
+#error "Wrong seven segment port selection"
+#endif
+
+#if (BCD_SSEG_PINA < DIO_PIN0 || BCD_SSEG_PINA > DIO_PIN7 || \
+	BCD_SSEG_PINB < DIO_PIN0 || BCD_SSEG_PINB > DIO_PIN7 || \
+	BCD_SSEG_PINC < DIO_PIN0 || BCD_SSEG_PINC > DIO_PIN7 || \
+	BCD_SSEG_PIND < DIO_PIN0 || BCD_SSEG_PIND > DIO_PIN7)
+#error "Wrong seven segment pin selection"
+#endif
+
+#if (SSEG_BCD_PORT_COM < DIO_PORTA || SSEG_BCD_PORT_COM > DIO_PORTD || \
+	SSEG_BCD_PIN_COM < DIO_PIN0 || SSEG_BCD_PIN_COM > DIO_PIN7)
+#error "Wrong seven segment com port & pin selection"
+#endif
 
 #if SSEG_TYPE == ANODE
 		//COM
@@ -131,75 +145,10 @@ u8 SSEG_u8WriteNumber (u8 copy_u8number)
 #error "Wrong seven segment type selection"
 #endif
 
-#else
-#error "Wrong seven segment selection"
 #endif
 	}
 
 	return Local_u8ErrorState;
-
-	/*	for(int b=0; b<10; b++)
-	{
-		for(int a=0; a<10; a++)
-		{
-			for(int j=0; j<10; j++)
-			{
-				for(int k=0; k<10; k++)
-				{
-					for(int i=0; i<20; i++)
-					{
-						//1
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN3,DIO_PIN_LOW);
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN2,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN5,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN6,DIO_PIN_HIGH);
-
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN0,k & 1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN1,(k>>1)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN2,(k>>2)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN4,(k>>3)&1);
-
-						_delay_ms(2);
-						//2
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN3,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN2,DIO_PIN_LOW);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN5,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN6,DIO_PIN_HIGH);
-
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN0,j & 1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN1,(j>>1)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN2,(j>>2)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN4,(j>>3)&1);
-						_delay_ms(2);
-
-						//3
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN3,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN2,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN5,DIO_PIN_LOW);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN6,DIO_PIN_HIGH);
-
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN0,a & 1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN1,(a>>1)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN2,(a>>2)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN4,(a>>3)&1);
-						_delay_ms(2);
-
-						//4
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN3,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTA,DIO_PIN2,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN5,DIO_PIN_HIGH);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN6,DIO_PIN_LOW);
-
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN0,b & 1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN1,(b>>1)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN2,(b>>2)&1);
-						DIO_u8SetPinValue(DIO_PORTB,DIO_PIN4,(b>>3)&1);
-						_delay_ms(2);
-					}
-				}
-			}
-		}
-	}*/
 }
 
 u8 SSEG_u8WriteNumber8Bit (u8* copy_pu8Ports, u8* copy_pu8Pins, u8 copy_u8Type, u8 copy_u8number)

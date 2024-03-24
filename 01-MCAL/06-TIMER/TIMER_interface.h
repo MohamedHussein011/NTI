@@ -187,7 +187,7 @@ void TIMER1_voidSetCompMatchChannelBValue(u16 copy_u16CompValue);
 
 /* @brief		shall generate PWM using TIMER1
 * @paramin		copy_u8TimerChannel / Timer1 Channel (A or B) -
-* 				copy_u32Freq / frequency in Hz (min = CPU_FREQ/(1024UL * (1+TOP)), max = CPU_FREQ / (1+TOP)) -
+* 				copy_u32Freq / frequency in Hz -
 * 				copy_u16Duty / duty cycle (range: 0 : 100, but first multiply it by 10)
 * @paramout		none
 * @retval		error of wrong paramin
@@ -198,6 +198,23 @@ void TIMER1_voidSetCompMatchChannelBValue(u16 copy_u16CompValue);
 * 				& TIMER0_COMP_MODE to be (TIMER_COMP_CLR_OCx or TIMER_COMP_SET_OCx)
 */
 u8 TIMER1_u8GeneratePWM(u8 copy_u8TimerChannel, u32 copy_u32Freq, u16 copy_u16Duty);
+
+/* @brief		shall calculate PWM properties using TIMER1
+* @paramin		copy_pvFunc / pointer to a function that takes nothing & returns nothing and being called
+* 				after the calculation
+* @paramout		Copy_pu32Freq / frequency in Hz -
+* 				copy_pu16Duty / duty cycle (range: 0 : 100, but multiplied it by 10)
+* @retval		error of wrong paramin
+* @note			note: 1000 = 100% , 500 = 50%, 20 = 2%
+*/
+u8 TIMER1_u8GetPwmFreqDuty (u32* Copy_pu32Freq, u16* copy_pu16Duty, pvFunction_t copy_pvFunc);
+
+/* @brief		shall return TIMER1 counter value
+* @paramin		none
+* @paramout		Copy_pu16Value / timer value
+* @retval		error of wrong paramout
+*/
+u8 TIMER1_u8GetTimerValue (u16* Copy_pu16Value);
 
 /* @brief		shall stop TIMER1
 * @paramin		none
@@ -241,9 +258,19 @@ void TIMER2_voidForceOutputComp(void);
 * 				after the delay passes
 * @paramout		none
 * @retval		error of wrong paramin
-* @note			least delay = 1 ms, must enable interrupt
+* @note			least delay = 1 ms, must enable interrupt, delay with no blocking
 */
-u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc);
+u8 TIMER2_u8SetInterval(u16 copy_u16Delayms, pvFunction_t copy_pvFunc);
+
+/* @brief		shall delay in ms using TIMER2
+* @paramin		copy_u16Delayms / delay in ms
+* @paramout		none
+* @retval		error of wrong paramin
+* @note			least delay = 1 ms, delay with blocking
+*/
+u8 TIMER2_u8Delayms(u16 copy_u16Delayms);
+
+
 
 /* @brief		shall stop TIMER2
 * @paramin		none

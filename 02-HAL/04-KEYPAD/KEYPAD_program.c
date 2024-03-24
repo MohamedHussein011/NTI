@@ -3,7 +3,6 @@
 /*************             File: KEYPAD_program.c		            ************************/
 /***************************************************************************************/
 #include "STD_TYPES.h"
-#include "BIT_MATH.h"
 
 #include "DIO_interface.h"
 

@@ -3,7 +3,6 @@
 /*************             File: LCD_program.c		            ************************/
 /***************************************************************************************/
 #include "STD_TYPES.h"
-#include "BIT_MATH.h"
 #include "User_Functions.h"
 #include "util/delay.h"
 

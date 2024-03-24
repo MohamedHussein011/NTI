@@ -17,7 +17,7 @@
  * */
 
 /* Font Size*/
-#define LCD_Font_Size        FiveEleven_Size
+#define LCD_Font_Size        FiveEight_Size
 
 /* Display */
 #define LCD_Display        Display_ON
@@ -41,9 +41,9 @@
 
 
 /*Control Pins*/
-#define LCD_RS_PIN          DIO_PIN5
+#define LCD_RS_PIN          DIO_PIN3
 #define LCD_RW_PIN          DIO_PIN6
-#define LCD_EN_PIN          DIO_PIN7
+#define LCD_EN_PIN          DIO_PIN2
 
 #if (LCD_RS_PIN < DIO_PIN0 || LCD_RS_PIN > DIO_PIN7 || \
 	 LCD_RW_PIN < DIO_PIN0 || LCD_RW_PIN > DIO_PIN7 || \
@@ -78,10 +78,10 @@
 #define LCD_DATA_PIN_D1			DIO_PIN1
 #define LCD_DATA_PIN_D2			DIO_PIN2
 #define LCD_DATA_PIN_D3			DIO_PIN3
-#define LCD_DATA_PIN_D4			DIO_PIN4
-#define LCD_DATA_PIN_D5			DIO_PIN5
-#define LCD_DATA_PIN_D6			DIO_PIN6
-#define LCD_DATA_PIN_D7			DIO_PIN7
+#define LCD_DATA_PIN_D4			DIO_PIN0
+#define LCD_DATA_PIN_D5			DIO_PIN1
+#define LCD_DATA_PIN_D6			DIO_PIN2
+#define LCD_DATA_PIN_D7			DIO_PIN4
 
 #if (LCD_DATA_PIN_D0 < DIO_PIN0 || LCD_DATA_PIN_D0 > DIO_PIN7 || \
 	 LCD_DATA_PIN_D1 < DIO_PIN0 || LCD_DATA_PIN_D1 > DIO_PIN7 || \

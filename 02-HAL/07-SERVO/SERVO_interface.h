@@ -16,7 +16,8 @@
 
 /********************************				Function Prototypes				********************************/
 /* @brief		shall rotate the servo motor to a specified angle
-* @paramin		copy_u8Angle / angle to be set to servo
+* @paramin		copy_u8TimerChannel / TIMER1 channel A or B -
+* 				copy_u8Angle / angle to be set to servo
 * @paramout		none
 * @retval		error of wrong paramin
 */

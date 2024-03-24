@@ -81,6 +81,17 @@ static u16 Timer2_u16DelayCounter = 0;
 static u16 Timer2_u16Counter = 0;
 /* Timer2 Flag for the Delay function indicating it's already working*/
 static u8 Timer2_u8Flag = IDLE;
+/* Timer2 Flag for the Delay function indicating whether Delayms function is working or SetInterval*/
+static u8 Timer2_u8Delay = IDLE;
+#define TIMER2_DELAY_MS						0
+#define TIMER2_SET_INTERVAL					1
+/* Timer1 ICU counter */
+static u8 Timer1_u8IcuCounter = 0;
+/* on & off time for pwm cycle & freq. & duty */
+static u16 Timer1_u16Ton = 0;
+static u16 Timer1_u16Toff = 0;
+static u16* Timer1_pu16Duty = 0;
+static u32* Timer1_pu32Freq = 0;
 
 /*array of 2 pointers to functions for all interrupt sources for TIMER0*/
 static pvFunction_t Timer_CallBack[8] = {NULL};
@@ -654,49 +665,51 @@ u8 TIMER1_u8GeneratePWM(u8 copy_u8TimerChannel, u32 copy_u32Freq, u16 copy_u16Du
 			/* start the timer with prescaler / 64 */
 			TCCR1B &= 0xF8;
 #if (TIMER1_MODE == TIMER1_FAST_PWM_ICR1 || TIMER1_MODE == TIMER1_FAST_PWM_OCR1A || \
-			TIMER1_MODE == TIMER1_PWM_ICR1 || TIMER1_MODE == TIMER1_PWM_OCR1A || \
-					TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_PWM_PFC_OCR1A)
-		if(Local_u16Pre == 1024)
-		{
-			TCCR1B |= TIMER_CLOCK_1024;
-		}
-		else if(Local_u16Pre == 256)
-		{
-			TCCR1B |= TIMER_CLOCK_256;
-		}
-		else if(Local_u16Pre == 64)
-		{
-			TCCR1B |= TIMER_CLOCK_64;
-		}
-		else if(Local_u16Pre == 8)
-		{
-			TCCR1B |= TIMER_CLOCK_8;
-		}
-		else if(Local_u16Pre == 1)
-		{
-			TCCR1B |= TIMER_NO_PRESCALER;
-		}
-#else
-	if(copy_u32Freq < (Timer1_MinFreq + 1))
-	{
-		TCCR1B |= TIMER_CLOCK_1024;
-	}
-	else if(copy_u32Freq < (Timer1_Pre256Freq + 1))
-	{
-		TCCR1B |= TIMER_CLOCK_256;
-	}
-	else if(copy_u32Freq < (Timer1_Pre64Freq + 1))
-	{
-		TCCR1B |= TIMER_CLOCK_64;
-	}
-	else if(copy_u32Freq < (Timer1_Pre8Freq + 1))
-	{
-		TCCR1B |= TIMER_CLOCK_8;
-	}
-	else if(copy_u32Freq < Timer1_MaxFreq)
-	{
-		TCCR1B |= TIMER_NO_PRESCALER;
-	}
+		TIMER1_MODE == TIMER1_PWM_ICR1 || TIMER1_MODE == TIMER1_PWM_OCR1A || \
+		TIMER1_MODE == TIMER1_PWM_PFC_ICR1 || TIMER1_MODE == TIMER1_PWM_PFC_OCR1A)
+			if(Local_u16Pre == 1024)
+			{
+				TCCR1B |= TIMER_CLOCK_1024;
+			}
+			else if(Local_u16Pre == 256)
+			{
+				TCCR1B |= TIMER_CLOCK_256;
+			}
+			else if(Local_u16Pre == 64)
+			{
+				TCCR1B |= TIMER_CLOCK_64;
+			}
+			else if(Local_u16Pre == 8)
+			{
+				TCCR1B |= TIMER_CLOCK_8;
+			}
+			else if(Local_u16Pre == 1)
+			{
+				TCCR1B |= TIMER_NO_PRESCALER;
+			}
+#elif (TIMER1_MODE == TIMER1_PWM_8BIT || TIMER1_MODE == TIMER1_PWM_9BIT || \
+		TIMER1_MODE == TIMER1_PWM_10BIT || TIMER1_MODE == TIMER1_FAST_PWM_8BIT || \
+		TIMER1_MODE == TIMER1_FAST_PWM_9BIT || TIMER1_MODE == TIMER1_FAST_PWM_10BIT)
+			if(copy_u32Freq < (Timer1_MinFreq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_1024;
+			}
+			else if(copy_u32Freq < (Timer1_Pre256Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_256;
+			}
+			else if(copy_u32Freq < (Timer1_Pre64Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_64;
+			}
+			else if(copy_u32Freq < (Timer1_Pre8Freq + 1))
+			{
+				TCCR1B |= TIMER_CLOCK_8;
+			}
+			else if(copy_u32Freq < Timer1_MaxFreq)
+			{
+				TCCR1B |= TIMER_NO_PRESCALER;
+			}
 #endif
 		}
 		else
@@ -708,6 +721,64 @@ u8 TIMER1_u8GeneratePWM(u8 copy_u8TimerChannel, u32 copy_u32Freq, u16 copy_u16Du
 
 	return Local_u8ErrorStatus;
 
+}
+
+
+
+u8 TIMER1_u8GetPwmFreqDuty (u32* Copy_pu32Freq, u16* copy_pu16Duty, pvFunction_t copy_pvFunc)
+{
+	u8 Local_u8ErrorStatus = OK;
+
+	if(copy_pu16Duty != NULL && Copy_pu32Freq != NULL && copy_pvFunc != NULL)
+	{
+		/* stop timer first */
+		TCCR1B &= 0xF8;
+		TCCR1B |= TIMER_NO_CLOCK;
+
+		Timer1_pu32Freq = Copy_pu32Freq;
+		Timer1_pu16Duty = copy_pu16Duty;
+		Timer_CallBack[TIMER1_CAPT] = copy_pvFunc;
+
+		/* put timer1 on normal mode */
+		/* Waveform Generation Mode */
+		/*			WGM10						WGM11				 */
+		TCCR1A |= (((TIMER1_NORMAL&0x01)) | ((TIMER1_NORMAL>>1 & 0x01) << 1));
+
+		/*			WGM12						WGM13				 */
+		TCCR1B |= (((TIMER1_NORMAL>>2 &0x01) << 3) | ((TIMER1_NORMAL>>3 & 0x01) << 4));
+
+		/* Start counting from 0 */
+		TCNT1 = 0;
+
+		/* Set ICU to trigger interrupt on the next rising edge */
+		SET_BIT(TCCR1B, ICES1);
+
+		/* Input Capture Interrupt Enable */
+		SET_BIT(TIMSK, TICIE1);
+
+		/* Clock Select / Prescaler */
+		TCCR1B &= 0xF8;
+		TCCR1B |= TIMER_CLOCK_64;
+
+	}
+	else
+		Local_u8ErrorStatus = TIMER_E_PARAM_POINTER;
+
+	return Local_u8ErrorStatus;
+}
+
+u8 TIMER1_u8GetTimerValue (u16* Copy_pu16Value)
+{
+	u8 Local_u8ErrorStatus = OK;
+
+	if(Copy_pu16Value != NULL)
+	{
+		*Copy_pu16Value = TCNT1;
+	}
+	else
+		Local_u8ErrorStatus = TIMER_E_PARAM_POINTER;
+
+	return Local_u8ErrorStatus;
 }
 
 void TIMER1_voidStop(void)
@@ -787,7 +858,7 @@ void TIMER2_voidForceOutputComp(void)
 	SET_BIT(TCCR2, FOC2);
 }
 
-u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
+u8 TIMER2_u8SetInterval(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
 {
 	u8 Local_u8ErrorStatus = OK;
 	u32 Local_u32Value = 0;
@@ -798,6 +869,9 @@ u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
 		{
 			/* Busy */
 			Timer2_u8Flag = BUSY;
+
+			/* Set interval is working */
+			Timer2_u8Delay = TIMER2_SET_INTERVAL;
 
 			/* stop the timer */
 			TCCR2 &= 0xF8;
@@ -984,6 +1058,201 @@ u8 TIMER2_u8Delayms(u16 copy_u16Delayms, pvFunction_t copy_pvFunc)
 	return Local_u8ErrorStatus;
 }
 
+u8 TIMER2_u8Delayms(u16 copy_u16Delayms)
+{
+	u8 Local_u8ErrorStatus = OK;
+	u32 Local_u32Value = 0;
+
+	if(Timer2_u8Flag == IDLE)
+	{
+		/* Busy */
+		Timer2_u8Flag = BUSY;
+
+		/* Delay ms is working */
+		Timer2_u8Delay = TIMER2_DELAY_MS;
+
+		/* stop the timer */
+		TCCR2 &= 0xF8;
+		TCCR2 |= TIMER2_NO_CLOCK;
+
+		/* Waveform Generation Mode --> CTC mode */
+		/*			WGM20						WGM21				 */
+		TCCR2 |= (((TIMER_CTC&0x01) << 6) | ((TIMER_CTC>>1 & 0x01) << 3));
+
+		/* Compare Match Output Mode --> Normal */
+		/*			COM20						COM21				 */
+		TCCR2 |= (((TIMER_COMP_NORMAL&0x01) << 4) | ((TIMER_COMP_NORMAL>>1 & 0x01) << 5));
+
+		/* Preload value = 0, to start from the beginning */
+		TCNT2 = 0;
+
+		/* store the delay*/
+		Timer2_u16Counter = copy_u16Delayms;
+
+		//mask prescaler bits first
+		TCCR2 &= 0xF8;
+
+		if(CPU_FREQ <= 1000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (1000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_NO_PRESCALER;
+		}
+		else if(CPU_FREQ <= 8000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (8000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_8;
+		}
+		else if(CPU_FREQ <= 32000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (32000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_32;
+		}
+		else if(CPU_FREQ <= 64000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (64000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_64;
+		}
+		else if(CPU_FREQ <= 128000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (128000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+
+
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_128;
+		}
+		else if(CPU_FREQ <= 256000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (256000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_256;
+		}
+		else if(CPU_FREQ <= 1024000000UL)
+		{
+			/* compare value = 250, every 1 ms interrupt happens */
+			Local_u32Value = 1000UL / (1024000000UL / CPU_FREQ);
+			if(Local_u32Value > 255)
+			{
+				while(Local_u32Value > 255)
+				{
+					Local_u32Value /= 255;
+				}
+				Timer2_u16Counter *= (Local_u32Value + 1);
+				OCR2 = 255;
+			}
+			else
+				OCR2 = Local_u32Value;
+			/* Timer/Counter2 Output Compare Match Interrupt Enable */
+			TIMSK |= (TIMER_ENABLE<<7);
+
+			/* start the timer by prescaler /64 ... tick time = 4 us*/
+			TCCR2 |= TIMER2_CLOCK_1024;
+		}
+
+		/* Loop until the delay is passed*/
+		while(Timer2_u8Flag == BUSY);
+
+	}
+	else
+		Local_u8ErrorStatus = TIMER_E_BUSY;
+
+
+	return Local_u8ErrorStatus;
+}
+
 void TIMER2_voidStop(void)
 {
 	/* Clock Select / Prescaler */
@@ -1097,10 +1366,45 @@ void __vector_7 (void)
 void __vector_6 (void) __attribute__((signal));
 void __vector_6 (void)
 {
-	if(Timer_CallBack[TIMER1_CAPT] != NULL)
+
+	Timer1_u8IcuCounter++;
+
+	/* first rising edge */
+	if(Timer1_u8IcuCounter == 1)
 	{
-		Timer_CallBack[TIMER1_CAPT]();
+		/* reset timer counter */
+		TCNT1 = 0;
+		/* Set ICU to trigger interrupt on the next falling edge */
+		CLR_BIT(TCCR1B, ICES1);
 	}
+	else if(Timer1_u8IcuCounter == 2)		/* first falling edge */
+	{
+		/* get timer read for Ton*/
+		Timer1_u16Ton = ICR1;
+		/* reset timer counter */
+		TCNT1 = 0;
+		/* Set ICU to trigger interrupt on the next rising edge */
+		SET_BIT(TCCR1B, ICES1);
+	}
+	else if(Timer1_u8IcuCounter == 3)		/* second rising edge */
+	{
+		/* get timer read for Ton*/
+		Timer1_u16Toff = ICR1;
+		/* Input Capture Interrupt Disable */
+		CLR_BIT(TIMSK, TICIE1);
+		/* stop timer first */
+		TCCR1B &= 0xF8;
+		TCCR1B |= TIMER_NO_CLOCK;
+
+		*Timer1_pu16Duty = ((Timer1_u16Ton * 1000UL) / (Timer1_u16Ton + Timer1_u16Toff));
+		*Timer1_pu32Freq = (1000000UL / ((Timer1_u16Ton + Timer1_u16Toff) * (64000000UL / (CPU_FREQ))));
+
+		if(Timer_CallBack[TIMER1_CAPT] != NULL)
+		{
+			Timer_CallBack[TIMER1_CAPT]();
+		}
+	}
+
 }
 
 /* Timer/Counter2 Overflow */
@@ -1121,13 +1425,17 @@ void __vector_4 (void)
 
 	if(Timer2_u16DelayCounter == Timer2_u16Counter)
 	{
-		if(Timer_CallBack[TIMER2_COMP] != NULL)
+		if(Timer2_u8Delay == TIMER2_SET_INTERVAL)
 		{
-			Timer_CallBack[TIMER2_COMP]();
+			if(Timer_CallBack[TIMER2_COMP] != NULL)
+			{
+				Timer_CallBack[TIMER2_COMP]();
+			}
 		}
 
 		Timer2_u16DelayCounter = 0;
 		Timer2_u8Flag = IDLE;
+		Timer2_u8Delay = IDLE;
 
 		/* Timer/Counter2 Output Compare Match Interrupt Disable */
 		CLR_BIT(TIMSK, TIMER2_COMP);
